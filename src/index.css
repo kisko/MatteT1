@@ -1,0 +1,40 @@
+@import "tailwindcss";
+
+@layer base {
+  body {
+    @apply transition-colors duration-200;
+  }
+}
+
+/* Custom KaTeX styling for dark/light mode integration */
+.katex-display {
+  margin: 0.75em 0 !important;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0.25em 0;
+}
+
+.math-view-block {
+  @apply py-2 px-4 rounded-lg bg-slate-800/60 dark:bg-slate-800/80 border border-slate-700/50 my-3 overflow-x-auto;
+}
+
+.math-view-inline {
+  @apply inline-block px-1;
+}
+
+.math-view-error {
+  @apply text-red-400 font-mono text-sm px-1 rounded bg-red-950/40 border border-red-800/50;
+}
+
+.practical-model-math,
+.practical-model-math .math-view-block,
+.practical-model-math .katex-display {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden !important;
+}
+
+.practical-model-math .katex {
+  font-size: clamp(0.78rem, 3.2vw, 1.2rem);
+  max-width: 100%;
+}

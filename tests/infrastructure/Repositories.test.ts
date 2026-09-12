@@ -1,0 +1,66 @@
+import { describe, it, expect } from 'vitest';
+import { InMemoryTaskRepository } from '../../src/infrastructure/persistence/InMemoryTaskRepository.js';
+import { LocalStorageProgressRepository } from '../../src/infrastructure/persistence/LocalStorageProgressRepository.js';
+import { Lk20Topic1T } from '../../src/domain/model/task/value-objects/Lk20Category.js';
+import { UserProgress } from '../../src/domain/model/progress/UserProgress.js';
+import { StudentAnswer } from '../../src/domain/task/value-objects/StudentAnswer.js';
+
+describe('Infrastructure Repositories', () => {
+  it('InMemoryTaskRepository skal hente oppgaver etter id, tema og alle', async () => {
+    const repo = new InMemoryTaskRepository();
+    const allTasks = await repo.getAll();
+    expect(allTasks.length).toBeGreaterThan(0);
+
+    const firstTask = allTasks[0];
+    const foundById = await repo.getById(firstTask.id.value);
+    expect(foundById?.id.value).toBe(firstTask.id.value);
+
+    const algebraTasks = await repo.getByTopic(Lk20Topic1T.TALL_OG_ALGEBRA);
+    expect(algebraTasks.length).toBeGreaterThanOrEqual(3);
+  });
+
+  it('skal ha en balansert oppgavebank for alle 1T-moduler', async () => {
+    const repo = new InMemoryTaskRepository();
+
+    for (const topic of Object.values(Lk20Topic1T)) {
+      const tasks = await repo.getByTopic(topic);
+      const subtopics = new Set(tasks.map((task) => task.category.subCompetenceGoal));
+      const difficultyLevels = new Set(tasks.map((task) => task.difficulty.level));
+
+      expect(tasks.length, `${topic} mangler oppgaver`).toBeGreaterThanOrEqual(3);
+      expect(subtopics.size, `${topic} trenger flere deltemaer`).toBeGreaterThanOrEqual(2);
+      expect(difficultyLevels.size, `${topic} trenger nivåvariasjon`).toBeGreaterThanOrEqual(2);
+      expect(tasks.every((task) => task.solutionSteps.length > 0)).toBe(true);
+    }
+  });
+
+  it('skal kunne evaluere fasiten til hver oppgave som korrekt', async () => {
+    const repo = new InMemoryTaskRepository();
+    const tasks = await repo.getAll();
+
+    for (const task of tasks) {
+      const answer = StudentAnswer.create(task.correctAnswer);
+      expect(answer.isSuccess, `${task.id.value} har ugyldig fasit`).toBe(true);
+
+      if (answer.isSuccess) {
+        const evaluation = task.evaluate(answer.value);
+        expect(evaluation.isSuccess, `${task.id.value} kunne ikke evalueres`).toBe(true);
+        if (evaluation.isSuccess) {
+          expect(evaluation.value.isCorrect, `${task.id.value} godtar ikke egen fasit`).toBe(true);
+        }
+      }
+    }
+  });
+
+  it('LocalStorageProgressRepository skal hente og lagre progresjon', async () => {
+    const repo = new LocalStorageProgressRepository();
+    const initialProgress = await repo.getProgress();
+    expect(initialProgress.totalSolved).toBe(0);
+
+    const updated = initialProgress.recordAttempt(Lk20Topic1T.FUNKSJONER, true);
+    await repo.saveProgress(updated);
+
+    const reloaded = await repo.getProgress();
+    expect(reloaded.totalSolved).toBe(1);
+  });
+});
