@@ -9,6 +9,7 @@ export interface SubmitAnswerDTO {
   session: QuizSession;
   answerValue: AnswerValue;
   hintsUsedCount?: number;
+  reasoning?: string;
 }
 
 export class SubmitAnswerUseCase {
@@ -40,7 +41,11 @@ export class SubmitAnswerUseCase {
     }
 
     // Oppdater sesjon og lagre progresjon
-    dto.session.submitAnswer(studentAnswerResult.value, dto.hintsUsedCount ?? 0);
+    dto.session.submitAnswer(
+      studentAnswerResult.value,
+      dto.hintsUsedCount ?? 0,
+      dto.reasoning
+    );
 
     const currentProgress = await this.progressRepository.getProgress();
     const updatedProgress = currentProgress.recordAttempt(

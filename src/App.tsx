@@ -65,9 +65,18 @@ export const App: React.FC = () => {
     }
   };
 
+  const handleStartExam = async () => {
+    const sessionResult = await startQuizUseCase.executeExam();
+    if (sessionResult.isSuccess) {
+      setActiveSession(sessionResult.value);
+      setCurrentView('quiz');
+    }
+  };
+
   const handleSubmitAnswer = async (
     answerValue: AnswerValue,
-    hintsUsedCount: number
+    hintsUsedCount: number,
+    reasoning?: string
   ): Promise<ExtendedEvaluationResult | null> => {
     if (!activeSession) return null;
 
@@ -75,6 +84,7 @@ export const App: React.FC = () => {
       session: activeSession,
       answerValue,
       hintsUsedCount,
+      reasoning,
     });
 
     if (res.isSuccess) {
@@ -94,7 +104,11 @@ export const App: React.FC = () => {
 
   const handleRestartQuiz = async () => {
     if (activeSession) {
-      await handleStartTopic(activeSession.topicTitle as Lk20Topic1T);
+      if (activeSession.mode === 'exam') {
+        await handleStartExam();
+      } else {
+        await handleStartTopic(activeSession.topicTitle as Lk20Topic1T);
+      }
     }
   };
 
@@ -110,7 +124,7 @@ export const App: React.FC = () => {
 
       <main>
         {currentView === 'dashboard' ? (
-          <DashboardView progress={progress} onStartTopic={handleOpenTopic} />
+          <DashboardView progress={progress} onStartTopic={handleOpenTopic} onStartExam={handleStartExam} />
         ) : currentView === 'lecture' && activeTopic ? (
           <LectureView
             topic={activeTopic}

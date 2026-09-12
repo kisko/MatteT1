@@ -2,8 +2,16 @@ import React from 'react';
 import { Trophy, ArrowRight, RefreshCw } from 'lucide-react';
 
 interface QuizSummaryModalProps {
-  scoreSummary: { correctCount: number; totalScore: number; percentage: number };
+  scoreSummary: {
+    correctCount: number;
+    answeredCount: number;
+    unansweredCount: number;
+    reasoningCount: number;
+    totalScore: number;
+    percentage: number;
+  };
   totalTasks: number;
+  isExamMode: boolean;
   onRestart: () => void;
   onGoHome: () => void;
 }
@@ -11,6 +19,7 @@ interface QuizSummaryModalProps {
 export const QuizSummaryModal: React.FC<QuizSummaryModalProps> = ({
   scoreSummary,
   totalTasks,
+  isExamMode,
   onRestart,
   onGoHome,
 }) => {
@@ -24,10 +33,10 @@ export const QuizSummaryModal: React.FC<QuizSummaryModalProps> = ({
         </div>
 
         <h2 className="text-2xl font-extrabold text-white mb-2">
-          Sesjon Fullført!
+          {isExamMode ? 'Eksamenstrening levert!' : 'Sesjon Fullført!'}
         </h2>
         <p className="text-sm text-slate-400 mb-6">
-          Flott innsats! Her er oppsummeringen av resultatet ditt:
+          {isExamMode ? 'Her er resultatet fra den blandede økten.' : 'Flott innsats! Her er oppsummeringen av resultatet ditt:'}
         </p>
 
         {/* Score Ring / Badge */}
@@ -37,6 +46,11 @@ export const QuizSummaryModal: React.FC<QuizSummaryModalProps> = ({
           </div>
           <div className="text-sm text-slate-300 font-semibold">
             {scoreSummary.correctCount} av {totalTasks} oppgaver riktig besvart
+          </div>
+          <div className="mt-3 grid grid-cols-2 gap-2 text-xs text-slate-400">
+            <span>{scoreSummary.totalScore.toFixed(1)} / {totalTasks} poeng</span>
+            <span>{scoreSummary.unansweredCount} ubesvart</span>
+            {isExamMode && <span className="col-span-2">{scoreSummary.reasoningCount} begrunnelser levert</span>}
           </div>
         </div>
 

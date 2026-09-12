@@ -13,9 +13,10 @@ interface QuizCardProps {
   task: Task;
   taskIndex: number;
   totalTasks: number;
-  onSubmitAnswer: (answerValue: AnswerValue, hintsUsedCount: number) => Promise<ExtendedEvaluationResult | null>;
+  onSubmitAnswer: (answerValue: AnswerValue, hintsUsedCount: number, reasoning?: string) => Promise<ExtendedEvaluationResult | null>;
   onNextTask: () => void;
   isLastTask: boolean;
+  isExamMode: boolean;
 }
 
 export const QuizCard: React.FC<QuizCardProps> = ({
@@ -25,8 +26,10 @@ export const QuizCard: React.FC<QuizCardProps> = ({
   onSubmitAnswer,
   onNextTask,
   isLastTask,
+  isExamMode,
 }) => {
   const [inputValue, setInputValue] = useState('');
+  const [reasoning, setReasoning] = useState('');
   const [evaluation, setEvaluation] = useState<ExtendedEvaluationResult | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [currentHintLevel, setCurrentHintLevel] = useState(0);
@@ -48,13 +51,14 @@ export const QuizCard: React.FC<QuizCardProps> = ({
       answerValue = { type: 'expression', latex: inputValue };
     }
 
-    const res = await onSubmitAnswer(answerValue, currentHintLevel);
+    const res = await onSubmitAnswer(answerValue, currentHintLevel, reasoning);
     setEvaluation(res);
     setIsSubmitting(false);
   };
 
   const handleNextClick = () => {
     setInputValue('');
+    setReasoning('');
     setEvaluation(null);
     setCurrentHintLevel(0);
     onNextTask();
@@ -106,7 +110,7 @@ export const QuizCard: React.FC<QuizCardProps> = ({
             type="text"
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
-            disabled={evaluation?.result.isCorrect}
+            disabled={isExamMode ? Boolean(evaluation) : evaluation?.result.isCorrect}
             placeholder={
               task.correctAnswer.type === 'numeric'
                 ? 'f.eks. 3.14 eller 4'
@@ -114,9 +118,19 @@ export const QuizCard: React.FC<QuizCardProps> = ({
             }
             className="flex-1 px-4 py-3 rounded-xl bg-slate-800 text-white border border-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 font-mono text-base placeholder-slate-500 disabled:opacity-60"
           />
+          {isExamMode && (
+            <textarea
+              value={reasoning}
+              onChange={(event) => setReasoning(event.target.value)}
+              disabled={Boolean(evaluation)}
+              placeholder="Skriv kort hvordan du tenkte, hvilke regler du brukte og hvorfor svaret gir mening."
+              rows={4}
+              className="min-h-24 w-full rounded-xl border border-slate-700 bg-slate-800 px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-60"
+            />
+          )}
           <button
             type="submit"
-            disabled={!inputValue.trim() || isSubmitting || evaluation?.result.isCorrect}
+            disabled={!inputValue.trim() || isSubmitting || Boolean(evaluation)}
             className="px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-800 text-white font-bold text-sm transition-colors shadow-lg shadow-indigo-600/20 flex items-center justify-center gap-2 border border-indigo-500/40"
           >
             {isSubmitting ? (
@@ -129,7 +143,7 @@ export const QuizCard: React.FC<QuizCardProps> = ({
       </form>
 
       {/* Evaluation Feedback */}
-      {evaluation && (
+      {evaluation && !isExamMode && (
         <div className="mb-6 animate-fadeIn">
           {evaluation.result.isCorrect ? (
             <div className="p-4 rounded-2xl bg-emerald-950/60 border border-emerald-500/60 text-emerald-200 flex items-start gap-3">
@@ -172,7 +186,7 @@ export const QuizCard: React.FC<QuizCardProps> = ({
       {/* Action Toolbar */}
       <div className="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-slate-800">
         <div className="flex items-center gap-2">
-          {currentHintLevel < hints.length && (
+          {!isExamMode && currentHintLevel < hints.length && (
             <button
               onClick={() => setCurrentHintLevel((prev) => prev + 1)}
               className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-300 border border-slate-700 text-xs font-semibold flex items-center gap-1.5 transition-colors"
@@ -184,13 +198,15 @@ export const QuizCard: React.FC<QuizCardProps> = ({
             </button>
           )}
 
-          <button
-            onClick={() => setShowSolutionModal(true)}
-            className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 text-xs font-semibold flex items-center gap-1.5 transition-colors"
-          >
-            <FileText className="w-4 h-4 text-indigo-400" />
-            <span>Se fullstendig forklaring</span>
-          </button>
+          {!isExamMode && (
+            <button
+              onClick={() => setShowSolutionModal(true)}
+              className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 text-xs font-semibold flex items-center gap-1.5 transition-colors"
+            >
+              <FileText className="w-4 h-4 text-indigo-400" />
+              <span>Se fullstendig forklaring</span>
+            </button>
+          )}
         </div>
 
         {evaluation && (

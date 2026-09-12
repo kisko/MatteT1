@@ -17,7 +17,15 @@ export interface TaskAnswerRecord {
   readonly answer: StudentAnswer;
   readonly result: EvaluationResult;
   readonly hintsUsedCount: number;
+  readonly reasoning?: string;
   readonly answeredAt: Date;
+}
+
+export type QuizMode = 'practice' | 'exam';
+
+export interface QuizSessionOptions {
+  readonly mode?: QuizMode;
+  readonly timeLimitSeconds?: number;
 }
 
 export class QuizSession {
@@ -30,19 +38,31 @@ export class QuizSession {
     public readonly id: QuizSessionId,
     public readonly tasks: ReadonlyArray<Task>,
     public readonly topicTitle: string,
-    public readonly startedAt: Date = new Date()
+    public readonly startedAt: Date = new Date(),
+    public readonly mode: QuizMode = 'practice',
+    public readonly timeLimitSeconds?: number
   ) {}
 
   public static create(
     tasks: Task[],
-    topicTitle: string
+    topicTitle: string,
+    options: QuizSessionOptions = {}
   ): Result<QuizSession, TaskError> {
     if (!tasks || tasks.length === 0) {
       return Result.fail(
         createTaskError('INVALID_SOLUTION_STEPS', 'Et quiz må bestå av minst én oppgave.')
       );
     }
-    return Result.ok(new QuizSession(QuizSessionId.create(), tasks, topicTitle));
+    return Result.ok(
+      new QuizSession(
+        QuizSessionId.create(),
+        tasks,
+        topicTitle,
+        new Date(),
+        options.mode ?? 'practice',
+        options.timeLimitSeconds
+      )
+    );
   }
 
   public get currentTask(): Task | undefined {
@@ -71,7 +91,8 @@ export class QuizSession {
 
   public submitAnswer(
     answer: StudentAnswer,
-    hintsUsedCount: number = 0
+    hintsUsedCount: number = 0,
+    reasoning?: string
   ): Result<EvaluationResult, TaskError> {
     const task = this.currentTask;
     if (!task) {
@@ -96,10 +117,15 @@ export class QuizSession {
       answer,
       result: evalResult.value,
       hintsUsedCount,
+      reasoning: reasoning?.trim() || undefined,
       answeredAt: new Date(),
     });
 
     return evalResult;
+  }
+
+  public get answeredWithReasoningCount(): number {
+    return Array.from(this._answers.values()).filter((record) => Boolean(record.reasoning)).length;
   }
 
   public nextTask(): boolean {
@@ -113,18 +139,45 @@ export class QuizSession {
     }
   }
 
-  public calculateTotalScore(): { correctCount: number; totalScore: number; percentage: number } {
+  public complete(): void {
+    if (!this._isCompleted) {
+      this._isCompleted = true;
+      this._completedAt = new Date();
+    }
+  }
+
+  public calculateTotalScore(): {
+    correctCount: number;
+    answeredCount: number;
+    unansweredCount: number;
+    reasoningCount: number;
+    totalScore: number;
+    percentage: number;
+  } {
     let correctCount = 0;
     let totalScore = 0;
+    let reasoningCount = 0;
 
     for (const record of this._answers.values()) {
       if (record.result.isCorrect) {
         correctCount++;
       }
       totalScore += record.result.score;
+      if (record.reasoning) {
+        reasoningCount++;
+      }
     }
 
-    const percentage = this.tasks.length > 0 ? (correctCount / this.tasks.length) * 100 : 0;
-    return { correctCount, totalScore, percentage: Math.round(percentage) };
+    const answeredCount = this._answers.size;
+    const unansweredCount = Math.max(0, this.tasks.length - answeredCount);
+    const percentage = this.tasks.length > 0 ? (totalScore / this.tasks.length) * 100 : 0;
+    return {
+      correctCount,
+      answeredCount,
+      unansweredCount,
+      reasoningCount,
+      totalScore,
+      percentage: Math.round(percentage),
+    };
   }
 }

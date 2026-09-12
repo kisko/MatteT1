@@ -2,16 +2,18 @@ import React from 'react';
 import { Lk20Topic1T } from '../../domain/model/task/value-objects/Lk20Category.js';
 import { UserProgress } from '../../domain/model/progress/UserProgress.js';
 import { CategoryCard } from '../components/CategoryCard.js';
-import { Sparkles, BookOpenCheck, Target } from 'lucide-react';
+import { Sparkles, BookOpenCheck, Target, Timer } from 'lucide-react';
 
 interface DashboardViewProps {
   progress: UserProgress;
   onStartTopic: (topic: Lk20Topic1T) => void;
+  onStartExam: () => void;
 }
 
 export const DashboardView: React.FC<DashboardViewProps> = ({
   progress,
   onStartTopic,
+  onStartExam,
 }) => {
   const topics = Object.values(Lk20Topic1T);
 
@@ -29,7 +31,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Hero Banner */}
-      <div className="relative rounded-3xl bg-gradient-to-r from-indigo-900/90 via-purple-900/80 to-slate-900 border border-indigo-500/30 p-8 sm:p-10 mb-10 overflow-hidden shadow-2xl">
+      <div className="light-hero relative rounded-3xl bg-gradient-to-r from-indigo-900/90 via-purple-900/80 to-slate-900 border border-indigo-500/30 p-8 sm:p-10 mb-10 overflow-hidden shadow-2xl">
         <div className="absolute -right-10 -bottom-10 w-64 h-64 rounded-full bg-indigo-500/10 blur-3xl pointer-events-none" />
         
         <div className="relative z-10 max-w-2xl">
@@ -44,6 +46,14 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           <p className="text-slate-300 text-base sm:text-lg leading-relaxed mb-6">
             Følg komplette leksjoner, bygg forståelse trinn for trinn og øv med oppgaver som gir forklaringer og pedagogiske hint ved feilsvar.
           </p>
+
+          <button
+            onClick={onStartExam}
+            className="mb-6 inline-flex items-center gap-2 rounded-xl border border-amber-400/50 bg-amber-400/15 px-4 py-3 text-sm font-bold text-amber-200 transition-colors hover:bg-amber-400/25"
+          >
+            <Timer className="h-5 w-5" />
+            <span>Start eksamenstrening · 12 oppgaver · 45 min</span>
+          </button>
 
           <div className="flex flex-wrap gap-6 pt-2 border-t border-slate-700/50">
             <div className="flex items-center gap-3">

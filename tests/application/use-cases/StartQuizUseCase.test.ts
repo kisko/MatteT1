@@ -29,4 +29,20 @@ describe('StartQuizUseCase', () => {
       }
     }
   });
+
+  it('skal starte en blandet tidsbegrenset eksamensøkt', async () => {
+    const repo = new InMemoryTaskRepository();
+    const useCase = new StartQuizUseCase(repo);
+
+    const result = await useCase.executeExam();
+
+    expect(result.isSuccess).toBe(true);
+    if (result.isSuccess) {
+      expect(result.value.mode).toBe('exam');
+      expect(result.value.timeLimitSeconds).toBe(45 * 60);
+      expect(result.value.totalTasks).toBe(12);
+      expect(new Set(result.value.tasks.map((task) => task.category.mainTopic)).size).toBeGreaterThanOrEqual(5);
+      expect(result.value.tasks.every((task) => task.category.mainTopic !== Lk20Topic1T.SANNSYNLIGHET)).toBe(true);
+    }
+  });
 });

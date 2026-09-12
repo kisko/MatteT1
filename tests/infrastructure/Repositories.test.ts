@@ -16,7 +16,7 @@ describe('Infrastructure Repositories', () => {
     expect(foundById?.id.value).toBe(firstTask.id.value);
 
     const algebraTasks = await repo.getByTopic(Lk20Topic1T.TALL_OG_ALGEBRA);
-    expect(algebraTasks.length).toBeGreaterThanOrEqual(3);
+    expect(algebraTasks.length).toBeGreaterThanOrEqual(5);
   });
 
   it('skal ha en balansert oppgavebank for alle 1T-moduler', async () => {
@@ -27,7 +27,7 @@ describe('Infrastructure Repositories', () => {
       const subtopics = new Set(tasks.map((task) => task.category.subCompetenceGoal));
       const difficultyLevels = new Set(tasks.map((task) => task.difficulty.level));
 
-      expect(tasks.length, `${topic} mangler oppgaver`).toBeGreaterThanOrEqual(3);
+      expect(tasks.length, `${topic} mangler oppgaver`).toBeGreaterThanOrEqual(5);
       expect(subtopics.size, `${topic} trenger flere deltemaer`).toBeGreaterThanOrEqual(2);
       expect(difficultyLevels.size, `${topic} trenger nivåvariasjon`).toBeGreaterThanOrEqual(2);
       expect(tasks.every((task) => task.solutionSteps.length > 0)).toBe(true);

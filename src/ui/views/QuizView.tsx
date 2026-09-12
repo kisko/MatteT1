@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { QuizSession } from '../../domain/model/quiz/QuizSession.js';
 import { AnswerValue } from '../../domain/model/task/value-objects/StudentAnswer.js';
 import { ExtendedEvaluationResult } from '../../domain/services/TaskEvaluatorService.js';
@@ -8,7 +8,7 @@ import { ArrowLeft } from 'lucide-react';
 
 interface QuizViewProps {
   session: QuizSession;
-  onSubmitAnswer: (answerValue: AnswerValue, hintsUsedCount: number) => Promise<ExtendedEvaluationResult | null>;
+  onSubmitAnswer: (answerValue: AnswerValue, hintsUsedCount: number, reasoning?: string) => Promise<ExtendedEvaluationResult | null>;
   onGoHome: () => void;
   onRestart: () => void;
 }
@@ -20,7 +20,26 @@ export const QuizView: React.FC<QuizViewProps> = ({
   onRestart,
 }) => {
   const [isCompleted, setIsCompleted] = useState(session.isCompleted);
+  const [remainingSeconds, setRemainingSeconds] = useState(session.timeLimitSeconds ?? 0);
   const task = session.currentTask;
+  const isExamMode = session.mode === 'exam';
+
+  useEffect(() => {
+    if (!isExamMode || !session.timeLimitSeconds || isCompleted) return;
+
+    const timer = window.setInterval(() => {
+      setRemainingSeconds((seconds) => {
+        if (seconds <= 1) {
+          session.complete();
+          setIsCompleted(true);
+          return 0;
+        }
+        return seconds - 1;
+      });
+    }, 1000);
+
+    return () => window.clearInterval(timer);
+  }, [isExamMode, isCompleted, session]);
 
   const handleNextTask = () => {
     const hasMore = session.nextTask();
@@ -58,6 +77,11 @@ export const QuizView: React.FC<QuizViewProps> = ({
         <span className="text-sm font-bold text-indigo-300">
           Øving: {session.topicTitle.replace(/_/g, ' ')}
         </span>
+        {isExamMode && (
+          <span className={`text-sm font-bold ${remainingSeconds < 300 ? 'text-rose-300' : 'text-amber-300'}`}>
+            {Math.floor(remainingSeconds / 60).toString().padStart(2, '0')}:{(remainingSeconds % 60).toString().padStart(2, '0')}
+          </span>
+        )}
       </div>
 
       {/* Active Task Card */}
@@ -68,6 +92,7 @@ export const QuizView: React.FC<QuizViewProps> = ({
         onSubmitAnswer={onSubmitAnswer}
         onNextTask={handleNextTask}
         isLastTask={session.currentIndex === session.totalTasks - 1}
+        isExamMode={isExamMode}
       />
 
       {/* Summary Modal upon Completion */}
@@ -75,6 +100,7 @@ export const QuizView: React.FC<QuizViewProps> = ({
         <QuizSummaryModal
           scoreSummary={session.calculateTotalScore()}
           totalTasks={session.totalTasks}
+          isExamMode={isExamMode}
           onRestart={onRestart}
           onGoHome={onGoHome}
         />

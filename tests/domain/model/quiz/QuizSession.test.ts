@@ -41,6 +41,23 @@ describe('QuizSession Aggregate', () => {
 
     const summary = session.calculateTotalScore();
     expect(summary.correctCount).toBe(1);
+    expect(summary.answeredCount).toBe(1);
+    expect(summary.unansweredCount).toBe(0);
     expect(summary.percentage).toBe(100);
+  });
+
+  it('skal registrere begrunnelse i eksamensmodus', () => {
+    const session = QuizSession.create([task1], 'EKSAMENSTRENING', {
+      mode: 'exam',
+      timeLimitSeconds: 2700,
+    }).value;
+    const answer = StudentAnswer.create({ type: 'numeric', value: 2 }).value;
+
+    session.submitAnswer(answer, 0, 'Jeg isolerer x ved å trekke fra 1 på begge sider.');
+
+    expect(session.mode).toBe('exam');
+    expect(session.timeLimitSeconds).toBe(2700);
+    expect(session.answeredWithReasoningCount).toBe(1);
+    expect(session.answers.get(task1.id.value)?.reasoning).toContain('isolerer x');
   });
 });

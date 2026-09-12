@@ -410,6 +410,116 @@ export class InMemoryTaskRepository implements TaskRepositoryPort {
       correctAnswer: { type: 'numeric', value: 96 },
     });
 
+    // Utvidet oppgavebank: flere representasjoner og mer eksamensnære variasjoner.
+    addTask({
+      id: unwrap(TaskId.create('task-alg-4')),
+      title: unwrap(Title.create('Potensfunksjon fra to punkter')),
+      description: unwrap(LatexDescription.create('En potensfunksjon har formen $f(x)=a\\cdot x^2$ og går gjennom punktet $(3,18)$. Finn $a$.')),
+      difficulty: unwrap(Difficulty.create(DifficultyLevel.MIDDELS)),
+      category: unwrap(Lk20Category.create(Lk20Topic1T.TALL_OG_ALGEBRA, 'Potensfunksjoner')),
+      solutionSteps: [unwrap(SolutionStep.create(1, 'Sett inn punktet', 'Punktet $(3,18)$ betyr at $f(3)=18$.', '$18=a\\cdot3^2$')), unwrap(SolutionStep.create(2, 'Isoler parameteren', 'Regn ut $3^2$ og del på 9.', '$a=2$'))],
+      correctAnswer: { type: 'numeric', value: 2 },
+    });
+    addTask({
+      id: unwrap(TaskId.create('task-alg-5')),
+      title: unwrap(Title.create('Definisjonsmengde i rasjonal funksjon')),
+      description: unwrap(LatexDescription.create('For funksjonen $f(x)=\\frac{2x+1}{x-4}$: hvilken x-verdi er ikke tillatt?')),
+      difficulty: unwrap(Difficulty.create(DifficultyLevel.LETT)),
+      category: unwrap(Lk20Category.create(Lk20Topic1T.TALL_OG_ALGEBRA, 'Rasjonale funksjoner')),
+      solutionSteps: [unwrap(SolutionStep.create(1, 'Finn nevneren', 'Nevneren kan ikke være lik null.', '$x-4=0$')), unwrap(SolutionStep.create(2, 'Løs begrensningen', 'Legg til 4 på begge sider.', '$x=4$'))],
+      correctAnswer: { type: 'numeric', value: 4 },
+    });
+    addTask({
+      id: unwrap(TaskId.create('task-lig-4')),
+      title: unwrap(Title.create('Parameter i andregradsligning')),
+      description: unwrap(LatexDescription.create('For hvilken verdi av $k$ har likningen $x^2-6x+k=0$ bare én reell løsning?')),
+      difficulty: unwrap(Difficulty.create(DifficultyLevel.KREVENDE)),
+      category: unwrap(Lk20Category.create(Lk20Topic1T.LIGNINGER_OG_ULIKHETER, 'Diskriminant')),
+      solutionSteps: [unwrap(SolutionStep.create(1, 'Bruk diskriminanten', 'Én løsning betyr at diskriminanten er null.', '$(-6)^2-4k=0$')), unwrap(SolutionStep.create(2, 'Finn k', 'Løs $36-4k=0$.', '$k=9$'))],
+      correctAnswer: { type: 'numeric', value: 9 },
+    });
+    addTask({
+      id: unwrap(TaskId.create('task-lig-5')),
+      title: unwrap(Title.create('Ulikhet med brøk')),
+      description: unwrap(LatexDescription.create('Finn den minste heltallsløsningen til $\\frac{x-1}{x+2}>0$.')),
+      difficulty: unwrap(Difficulty.create(DifficultyLevel.KREVENDE)),
+      category: unwrap(Lk20Category.create(Lk20Topic1T.LIGNINGER_OG_ULIKHETER, 'Rasjonale ulikheter')),
+      solutionSteps: [unwrap(SolutionStep.create(1, 'Finn kritiske punkter', 'Telleren er null ved $x=1$, og nevneren er null ved $x=-2$.', '$x=-2,\\;x=1$')), unwrap(SolutionStep.create(2, 'Les fortegnene', 'Brøken er positiv når teller og nevner har samme fortegn.', '$x<-2\\text{ eller }x>1$'))],
+      correctAnswer: { type: 'numeric', value: 2 },
+    });
+    addTask({
+      id: unwrap(TaskId.create('task-fun-4')),
+      title: unwrap(Title.create('Parameter fra nullpunkt')),
+      description: unwrap(LatexDescription.create('Funksjonen $f(x)=2x+k$ har nullpunktet $x=5$. Finn $k$.')),
+      difficulty: unwrap(Difficulty.create(DifficultyLevel.LETT)),
+      category: unwrap(Lk20Category.create(Lk20Topic1T.FUNKSJONER, 'Parametre')),
+      solutionSteps: [unwrap(SolutionStep.create(1, 'Bruk nullpunktet', 'I nullpunktet er funksjonsverdien lik null.', '$0=2\\cdot5+k$')), unwrap(SolutionStep.create(2, 'Løs for k', 'Trekk 10 fra begge sider.', '$k=-10$'))],
+      correctAnswer: { type: 'numeric', value: -10 },
+    });
+    addTask({
+      id: unwrap(TaskId.create('task-fun-5')),
+      title: unwrap(Title.create('Skjæring mellom funksjoner')),
+      description: unwrap(LatexDescription.create('Finn x-koordinaten der $f(x)=x^2$ og $g(x)=2x+3$ skjærer hverandre på høyre side av y-aksen.')),
+      difficulty: unwrap(Difficulty.create(DifficultyLevel.KREVENDE)),
+      category: unwrap(Lk20Category.create(Lk20Topic1T.FUNKSJONER, 'Skjæringspunkter')),
+      solutionSteps: [unwrap(SolutionStep.create(1, 'Sett funksjonene lik hverandre', 'I skjæringspunktet har funksjonene samme verdi.', '$x^2=2x+3$')), unwrap(SolutionStep.create(2, 'Løs andregradsligningen', 'Faktoriser $(x-3)(x+1)=0$. Høyre side av y-aksen betyr $x>0$.', '$x=3$'))],
+      correctAnswer: { type: 'numeric', value: 3 },
+    });
+    addTask({
+      id: unwrap(TaskId.create('task-der-4')),
+      title: unwrap(Title.create('Tangent til en funksjon')),
+      description: unwrap(LatexDescription.create('Finn stigningstallet til tangenten til $f(x)=x^3-2x$ når $x=2$.')),
+      difficulty: unwrap(Difficulty.create(DifficultyLevel.MIDDELS)),
+      category: unwrap(Lk20Category.create(Lk20Topic1T.DERIVASJON_OG_VEKSTFART, 'Tangent')),
+      solutionSteps: [unwrap(SolutionStep.create(1, 'Deriver funksjonen', 'Bruk potensregelen ledd for ledd.', '$f\\prime(x)=3x^2-2$')), unwrap(SolutionStep.create(2, 'Sett inn x', 'Tangentens stigningstall er den deriverte i punktet.', '$f\\prime(2)=10$'))],
+      correctAnswer: { type: 'numeric', value: 10 },
+    });
+    addTask({
+      id: unwrap(TaskId.create('task-der-5')),
+      title: unwrap(Title.create('Størst mulig areal')),
+      description: unwrap(LatexDescription.create('Et rektangel har omkrets 20. Hvis den ene siden er $x$, er arealet $A(x)=x(10-x)$. Finn x når arealet er størst.')),
+      difficulty: unwrap(Difficulty.create(DifficultyLevel.KREVENDE)),
+      category: unwrap(Lk20Category.create(Lk20Topic1T.DERIVASJON_OG_VEKSTFART, 'Optimering')),
+      solutionSteps: [unwrap(SolutionStep.create(1, 'Deriver arealet', 'Utvikle først $A(x)=10x-x^2$.', '$A\\prime(x)=10-2x$')), unwrap(SolutionStep.create(2, 'Finn kritisk punkt', 'Sett den deriverte lik null.', '$10-2x=0\\Rightarrow x=5$'))],
+      correctAnswer: { type: 'numeric', value: 5 },
+    });
+    addTask({
+      id: unwrap(TaskId.create('task-trig-4')),
+      title: unwrap(Title.create('Sinussetningen')),
+      description: unwrap(LatexDescription.create('I en trekant er $A=30^\\circ$, $B=45^\\circ$ og $a=6$. Finn siden $b$ avrundet til to desimaler.')),
+      difficulty: unwrap(Difficulty.create(DifficultyLevel.MIDDELS)),
+      category: unwrap(Lk20Category.create(Lk20Topic1T.TRIGONOMETRI, 'Sinussetningen')),
+      solutionSteps: [unwrap(SolutionStep.create(1, 'Sett opp sinussetningen', 'Koble side og motstående vinkel.', '$\\frac{b}{\\sin45^\\circ}=\\frac{6}{\\sin30^\\circ}$')), unwrap(SolutionStep.create(2, 'Regn ut b', 'Isoler b og bruk gradmodus.', '$b=6\\frac{\\sin45^\\circ}{\\sin30^\\circ}\\approx8.49$'))],
+      correctAnswer: { type: 'numeric', value: 8.49, tolerance: 0.02 },
+    });
+    addTask({
+      id: unwrap(TaskId.create('task-trig-5')),
+      title: unwrap(Title.create('Ukjent vinkel med cosinussetningen')),
+      description: unwrap(LatexDescription.create('En trekant har sider $a=5$, $b=6$ og $c=7$. Finn vinkelen $C$ mellom sidene $a$ og $b$, avrundet til én desimal.')),
+      difficulty: unwrap(Difficulty.create(DifficultyLevel.KREVENDE)),
+      category: unwrap(Lk20Category.create(Lk20Topic1T.TRIGONOMETRI, 'Cosinussetningen')),
+      solutionSteps: [unwrap(SolutionStep.create(1, 'Isoler cosinus', 'Bruk $c^2=a^2+b^2-2ab\\cos C$.', '$\\cos C=\\frac{a^2+b^2-c^2}{2ab}=\\frac{12}{60}=0.2$')), unwrap(SolutionStep.create(2, 'Finn vinkelen', 'Bruk invers cosinus.', '$C=\\cos^{-1}(0.2)\\approx78.5^\\circ$'))],
+      correctAnswer: { type: 'numeric', value: 78.5, tolerance: 0.2 },
+    });
+    addTask({
+      id: unwrap(TaskId.create('task-model-4')),
+      title: unwrap(Title.create('Lineær regresjonsmodell')),
+      description: unwrap(LatexDescription.create('En lineær modell er $f(x)=3.5x+12$. Hva er modellens prediksjon når $x=8$?')),
+      difficulty: unwrap(Difficulty.create(DifficultyLevel.LETT)),
+      category: unwrap(Lk20Category.create(Lk20Topic1T.MODELLERING_OG_PROBLEMSLOYSING, 'Lineær modell')),
+      solutionSteps: [unwrap(SolutionStep.create(1, 'Sett inn x', 'Prediksjonen finnes ved å bruke modellen.', '$f(8)=3.5\\cdot8+12$')), unwrap(SolutionStep.create(2, 'Regn ut', 'Gang og legg sammen.', '$f(8)=40$'))],
+      correctAnswer: { type: 'numeric', value: 40 },
+    });
+    addTask({
+      id: unwrap(TaskId.create('task-model-5')),
+      title: unwrap(Title.create('Kontroller en vekstalgoritme')),
+      description: unwrap(LatexDescription.create('En algoritme starter med 200 og øker verdien med 10 % tre ganger. Hva blir sluttverdien?')),
+      difficulty: unwrap(Difficulty.create(DifficultyLevel.MIDDELS)),
+      category: unwrap(Lk20Category.create(Lk20Topic1T.MODELLERING_OG_PROBLEMSLOYSING, 'Programmering og algoritmer')),
+      solutionSteps: [unwrap(SolutionStep.create(1, 'Finn vekstfaktoren', 'En økning på 10 % gir vekstfaktor 1.10.', '$200\\cdot1.10^3$')), unwrap(SolutionStep.create(2, 'Kontroller resultatet', 'Gjenta multiplikasjonen tre ganger.', '$266.2$'))],
+      correctAnswer: { type: 'numeric', value: 266.2, tolerance: 0.1 },
+    });
+
     // 6. Modellering, bevis og problemløsing
     this.tasks.push(
       unwrap(
@@ -507,5 +617,23 @@ export class InMemoryTaskRepository implements TaskRepositoryPort {
         })
       )
     );
+    addTask({
+      id: unwrap(TaskId.create('task-san-4')),
+      title: unwrap(Title.create('Uavhengige hendelser')),
+      description: unwrap(LatexDescription.create('Hendelsene $A$ og $B$ er uavhengige. $P(A)=0.4$ og $P(B)=0.25$. Finn $P(A\\cap B)$.')),
+      difficulty: unwrap(Difficulty.create(DifficultyLevel.LETT)),
+      category: unwrap(Lk20Category.create(Lk20Topic1T.SANNSYNLIGHET, 'Uavhengighet')),
+      solutionSteps: [unwrap(SolutionStep.create(1, 'Bruk regelen', 'For uavhengige hendelser multipliserer vi sannsynlighetene.', '$P(A\\cap B)=P(A)P(B)$')), unwrap(SolutionStep.create(2, 'Regn ut', 'Sett inn verdiene.', '$0.4\\cdot0.25=0.10$'))],
+      correctAnswer: { type: 'numeric', value: 0.1, tolerance: 0.001 },
+    });
+    addTask({
+      id: unwrap(TaskId.create('task-san-5')),
+      title: unwrap(Title.create('Binomisk sannsynlighet')),
+      description: unwrap(LatexDescription.create('Et forsøk har sannsynlighet $0.5$ for suksess og gjentas 4 ganger. Hvor mange utfall gir nøyaktig én suksess?')),
+      difficulty: unwrap(Difficulty.create(DifficultyLevel.MIDDELS)),
+      category: unwrap(Lk20Category.create(Lk20Topic1T.SANNSYNLIGHET, 'Binomiske forsøk')),
+      solutionSteps: [unwrap(SolutionStep.create(1, 'Velg plasseringen', 'Den ene suksessen kan komme på ${4\\choose1}$ måter.', '${4\\choose1}=4')), unwrap(SolutionStep.create(2, 'Tell utfallene', 'For hver plassering er de tre andre forsøkene fiasko.', '$4$ utfall'))],
+      correctAnswer: { type: 'numeric', value: 4 },
+    });
   }
 }

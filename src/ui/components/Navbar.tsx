@@ -17,7 +17,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onGoHome,
 }) => {
   return (
-    <header className="sticky top-0 z-30 backdrop-blur-md bg-slate-900/80 border-b border-slate-800 transition-colors">
+    <header className="sticky top-0 z-30 backdrop-blur-md bg-slate-900/80 dark:bg-slate-900/80 border-b border-slate-800 dark:border-slate-800 transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         {/* Brand / Logo */}
         <button
@@ -25,7 +25,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           className="flex items-center gap-3 group text-left focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-lg p-1"
         >
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 p-0.5 shadow-lg shadow-indigo-500/20 group-hover:scale-105 transition-transform">
-            <div className="w-full h-full bg-slate-900 rounded-[10px] flex items-center justify-center">
+            <div className="w-full h-full bg-slate-900 dark:bg-slate-900 rounded-[10px] flex items-center justify-center">
               <BookOpen className="w-5 h-5 text-indigo-400" />
             </div>
           </div>
