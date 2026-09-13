@@ -3,6 +3,7 @@ import { Task } from '../task/Task.js';
 import { StudentAnswer } from '../task/value-objects/StudentAnswer.js';
 import { EvaluationResult } from '../task/value-objects/EvaluationResult.js';
 import { createTaskError, TaskError } from '../task/errors/TaskError.js';
+import { Lk20Topic1T } from '../task/value-objects/Lk20Category.js';
 
 export class QuizSessionId {
   private constructor(public readonly value: string) {}
@@ -28,9 +29,17 @@ export interface QuizSessionOptions {
   readonly timeLimitSeconds?: number;
 }
 
+export interface TopicScoreSummary {
+  readonly topic: Lk20Topic1T;
+  readonly correctCount: number;
+  readonly answeredCount: number;
+  readonly totalTasks: number;
+  readonly percentage: number;
+}
+
 export class QuizSession {
   private _currentIndex: number = 0;
-  private _answers: Map<string, TaskAnswerRecord> = new Map();
+  private readonly _answers: Map<string, TaskAnswerRecord> = new Map();
   private _isCompleted: boolean = false;
   private _completedAt?: Date;
 
@@ -179,5 +188,26 @@ export class QuizSession {
       totalScore,
       percentage: Math.round(percentage),
     };
+  }
+
+  public calculateTopicScores(): TopicScoreSummary[] {
+    const summaries = new Map<Lk20Topic1T, { correctCount: number; answeredCount: number; totalTasks: number }>();
+
+    for (const task of this.tasks) {
+      const topic = task.category.mainTopic;
+      const current = summaries.get(topic) ?? { correctCount: 0, answeredCount: 0, totalTasks: 0 };
+      const answer = this._answers.get(task.id.value);
+      summaries.set(topic, {
+        correctCount: current.correctCount + (answer?.result.isCorrect ? 1 : 0),
+        answeredCount: current.answeredCount + (answer ? 1 : 0),
+        totalTasks: current.totalTasks + 1,
+      });
+    }
+
+    return Array.from(summaries.entries()).map(([topic, summary]) => ({
+      topic,
+      ...summary,
+      percentage: summary.totalTasks > 0 ? Math.round((summary.correctCount / summary.totalTasks) * 100) : 0,
+    }));
   }
 }

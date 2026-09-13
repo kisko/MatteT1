@@ -5,5 +5,6 @@ import { DifficultyLevel } from '../../domain/model/task/value-objects/Difficult
 export interface TaskRepositoryPort {
   getById(id: string): Promise<Task | null>;
   getByTopic(topic: Lk20Topic1T, difficulty?: DifficultyLevel): Promise<Task[]>;
+  getByCompetenceGoal(goalLabel: string): Promise<Task[]>;
   getAll(): Promise<Task[]>;
 }

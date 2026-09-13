@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { lazy, Suspense, useState, useEffect } from 'react';
 import { Lk20Topic1T } from './domain/model/task/value-objects/Lk20Category.js';
 import { UserProgress } from './domain/model/progress/UserProgress.js';
 import { QuizSession } from './domain/model/quiz/QuizSession.js';
@@ -10,8 +10,10 @@ import { StartQuizUseCase } from './application/use-cases/StartQuizUseCase.js';
 import { SubmitAnswerUseCase } from './application/use-cases/SubmitAnswerUseCase.js';
 import { Navbar } from './ui/components/Navbar.js';
 import { DashboardView } from './ui/views/DashboardView.js';
-import { QuizView } from './ui/views/QuizView.js';
-import { LectureView } from './ui/views/LectureView.js';
+import { Task } from './domain/model/task/Task.js';
+
+const QuizView = lazy(() => import('./ui/views/QuizView.js').then((module) => ({ default: module.QuizView })));
+const LectureView = lazy(() => import('./ui/views/LectureView.js').then((module) => ({ default: module.LectureView })));
 
 const taskRepo = new InMemoryTaskRepository();
 const progressRepo = new LocalStorageProgressRepository();
@@ -23,11 +25,13 @@ export const App: React.FC = () => {
   const [progress, setProgress] = useState<UserProgress>(UserProgress.createEmpty());
   const [activeSession, setActiveSession] = useState<QuizSession | null>(null);
   const [activeTopic, setActiveTopic] = useState<Lk20Topic1T | null>(null);
+    const [taskCatalog, setTaskCatalog] = useState<readonly Task[]>([]);
   const [isDark, setIsDark] = useState<boolean>(true);
 
   // Last inn progresjon og tema ved oppstart
   useEffect(() => {
     progressRepo.getProgress().then(setProgress);
+    taskRepo.getAll().then(setTaskCatalog);
 
     const savedTheme = localStorage.getItem('mattet1_theme');
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -65,8 +69,16 @@ export const App: React.FC = () => {
     }
   };
 
-  const handleStartExam = async () => {
-    const sessionResult = await startQuizUseCase.executeExam();
+  const handleStartGoal = async (topic: Lk20Topic1T, goalLabels: readonly string[]) => {
+    const sessionResult = await startQuizUseCase.executeGoal(topic, goalLabels);
+    if (sessionResult.isSuccess) {
+      setActiveSession(sessionResult.value);
+      setCurrentView('quiz');
+    }
+  };
+
+  const handleStartExam = async (taskCount: number = 12) => {
+    const sessionResult = await startQuizUseCase.executeExam(taskCount);
     if (sessionResult.isSuccess) {
       setActiveSession(sessionResult.value);
       setCurrentView('quiz');
@@ -112,6 +124,36 @@ export const App: React.FC = () => {
     }
   };
 
+  let activeContent: React.ReactNode = null;
+  if (currentView === 'dashboard') {
+    activeContent = (
+      <DashboardView
+        progress={progress}
+        taskCatalog={taskCatalog}
+        onStartTopic={handleOpenTopic}
+        onStartGoal={handleStartGoal}
+        onStartExam={handleStartExam}
+      />
+    );
+  } else if (currentView === 'lecture' && activeTopic) {
+    activeContent = (
+      <LectureView
+        topic={activeTopic}
+        onBack={handleGoHome}
+        onStartPractice={() => handleStartTopic(activeTopic)}
+      />
+    );
+  } else if (activeSession) {
+    activeContent = (
+      <QuizView
+        session={activeSession}
+        onSubmitAnswer={handleSubmitAnswer}
+        onGoHome={handleGoHome}
+        onRestart={handleRestartQuiz}
+      />
+    );
+  }
+
   return (
     <div className={`min-h-screen ${isDark ? 'bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900'}`}>
       <Navbar
@@ -123,23 +165,14 @@ export const App: React.FC = () => {
       />
 
       <main>
-        {currentView === 'dashboard' ? (
-          <DashboardView progress={progress} onStartTopic={handleOpenTopic} onStartExam={handleStartExam} />
-        ) : currentView === 'lecture' && activeTopic ? (
-          <LectureView
-            topic={activeTopic}
-            onBack={handleGoHome}
-            onStartPractice={() => handleStartTopic(activeTopic)}
-          />
-        ) : activeSession ? (
-          <QuizView
-            session={activeSession}
-            onSubmitAnswer={handleSubmitAnswer}
-            onGoHome={handleGoHome}
-            onRestart={handleRestartQuiz}
-          />
-        ) : null}
+        <Suspense fallback={<div className="mx-auto max-w-3xl px-4 py-16 text-center text-sm text-slate-400">Laster læringsinnhold ...</div>}>
+          {activeContent}
+        </Suspense>
       </main>
+
+      <footer className="mx-auto max-w-7xl px-4 py-8 text-center text-xs text-slate-500 sm:px-6 lg:px-8">
+        Laget av Kjell Inge Skjønberg
+      </footer>
     </div>
   );
 };

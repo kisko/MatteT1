@@ -4,7 +4,7 @@ import { createTaskError, TaskError } from '../errors/TaskError.js';
 export type AnswerValue =
   | { type: 'numeric'; value: number; tolerance?: number }
   | { type: 'expression'; latex: string }
-  | { type: 'multipleChoice'; selectedOptionIndex: number }
+  | { type: 'multipleChoice'; selectedOptionIndex: number; options?: string[] }
   | { type: 'text'; text: string };
 
 export class StudentAnswer {

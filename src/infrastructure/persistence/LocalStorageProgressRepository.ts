@@ -1,9 +1,9 @@
 import { ProgressRepositoryPort } from '../../application/ports/ProgressRepositoryPort.js';
-import { UserProgress, CategoryMastery } from '../../domain/model/progress/UserProgress.js';
+import { UserProgress, CategoryMastery, GoalMastery } from '../../domain/model/progress/UserProgress.js';
 import { Lk20Topic1T } from '../../domain/model/task/value-objects/Lk20Category.js';
 
 export class LocalStorageProgressRepository implements ProgressRepositoryPort {
-  private static STORAGE_KEY = 'mattet1_user_progress_v1';
+  private static readonly STORAGE_KEY = 'mattet1_user_progress_v1';
   private memoryFallback: string | null = null;
 
   public async getProgress(): Promise<UserProgress> {
@@ -21,10 +21,17 @@ export class LocalStorageProgressRepository implements ProgressRepositoryPort {
 
       const parsed = JSON.parse(raw);
       const map = new Map<Lk20Topic1T, CategoryMastery>();
+      const goalMap = new Map<string, GoalMastery>();
 
       if (parsed.categoryStats) {
         for (const [topicKey, stat] of Object.entries(parsed.categoryStats)) {
           map.set(topicKey as Lk20Topic1T, stat as CategoryMastery);
+        }
+      }
+
+      if (parsed.goalStats) {
+        for (const [goalLabel, stat] of Object.entries(parsed.goalStats)) {
+          goalMap.set(goalLabel, stat as GoalMastery);
         }
       }
 
@@ -44,7 +51,8 @@ export class LocalStorageProgressRepository implements ProgressRepositoryPort {
         map,
         parsed.totalSolved ?? 0,
         parsed.streakDays ?? 0,
-        parsed.lastActiveDate ?? new Date().toISOString().split('T')[0]
+        parsed.lastActiveDate ?? new Date().toISOString().split('T')[0],
+        goalMap
       );
     } catch {
       return UserProgress.createEmpty();
@@ -58,6 +66,7 @@ export class LocalStorageProgressRepository implements ProgressRepositoryPort {
         streakDays: progress.streakDays,
         lastActiveDate: progress.lastActiveDate,
         categoryStats: Object.fromEntries(progress.categoryStats),
+        goalStats: Object.fromEntries(progress.goalStats),
       };
       const jsonStr = JSON.stringify(serializedObj);
       this.memoryFallback = jsonStr;

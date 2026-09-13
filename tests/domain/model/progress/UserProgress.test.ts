@@ -7,12 +7,13 @@ describe('UserProgress', () => {
     const progress = UserProgress.createEmpty();
     expect(progress.totalSolved).toBe(0);
 
-    const updated = progress.recordAttempt(Lk20Topic1T.FUNKSJONER, true);
+    const updated = progress.recordAttempt(Lk20Topic1T.FUNKSJONER, true, 'Nullpunkter');
     expect(updated.totalSolved).toBe(1);
 
     const stat = updated.categoryStats.get(Lk20Topic1T.FUNKSJONER);
     expect(stat?.tasksAttempted).toBe(1);
     expect(stat?.tasksCorrect).toBe(1);
     expect(stat?.masteryPercentage).toBe(100);
+    expect(updated.goalStats.get('Nullpunkter')?.masteryPercentage).toBe(100);
   });
 });

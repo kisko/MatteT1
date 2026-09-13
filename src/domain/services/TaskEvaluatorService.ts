@@ -1,10 +1,9 @@
 import { Result } from '../shared/Result.js';
-import { StudentAnswer } from '../model/task/value-objects/StudentAnswer.js';
+import { StudentAnswer, AnswerValue } from '../model/task/value-objects/StudentAnswer.js';
 import { EvaluationResult } from '../model/task/value-objects/EvaluationResult.js';
-import { createTaskError, TaskError } from '../model/task/errors/TaskError.js';
+import { TaskError } from '../model/task/errors/TaskError.js';
 import { Misconception, MisconceptionType, createMisconception } from '../model/task/Misconception.js';
 import { AlgebraEvaluatorService } from './AlgebraEvaluatorService.js';
-import { AnswerValue } from '../model/task/value-objects/StudentAnswer.js';
 
 export interface ExtendedEvaluationResult {
   readonly result: EvaluationResult;
@@ -52,7 +51,7 @@ export class TaskEvaluatorService {
       // Sjekk etter vanlige misoppfatninger (Misconception Analysis)
       const misconception = this.detectMisconception(expectedLatex, submittedLatex);
 
-      let feedback = `Svaret $${submittedLatex}$ var ikke korrekt for $${expectedLatex}$.`;
+      let feedback = `Svaret $${submittedLatex}$ er ikke korrekt ennå. Sjekk uttrykket steg for steg og prøv igjen.`;
       if (misconception) {
         feedback += ` **Pedagogisk hint:** ${misconception.title} - ${misconception.tipLatex}`;
       }
@@ -97,7 +96,7 @@ export class TaskEvaluatorService {
         result: EvaluationResult.incorrect(
           misconception
             ? `Nesten! Du fikk ${submittedNum}, men fasit er ${expected.value}. ${misconception.tipLatex}`
-            : `Feil svar. Du svarte ${submittedNum}, men forventet svar var ${expected.value}.`
+            : `Feil svar. Kontroller regneoperasjonene, fortegnene og om du har svart på det oppgaven faktisk spør etter. Prøv igjen.`
         ),
         misconception,
       });

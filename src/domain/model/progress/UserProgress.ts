@@ -7,9 +7,17 @@ export interface CategoryMastery {
   readonly masteryPercentage: number;
 }
 
+export interface GoalMastery {
+  readonly goalLabel: string;
+  readonly tasksAttempted: number;
+  readonly tasksCorrect: number;
+  readonly masteryPercentage: number;
+}
+
 export class UserProgress {
   private constructor(
     public readonly categoryStats: Map<Lk20Topic1T, CategoryMastery>,
+    public readonly goalStats: Map<string, GoalMastery>,
     public readonly totalSolved: number,
     public readonly streakDays: number,
     public readonly lastActiveDate: string
@@ -25,19 +33,20 @@ export class UserProgress {
         masteryPercentage: 0,
       });
     }
-    return new UserProgress(map, 0, 0, new Date().toISOString().split('T')[0]);
+    return new UserProgress(map, new Map(), 0, 0, new Date().toISOString().split('T')[0]);
   }
 
   public static fromData(
     categoryStats: Map<Lk20Topic1T, CategoryMastery>,
     totalSolved: number,
     streakDays: number,
-    lastActiveDate: string
+    lastActiveDate: string,
+    goalStats: Map<string, GoalMastery> = new Map()
   ): UserProgress {
-    return new UserProgress(categoryStats, totalSolved, streakDays, lastActiveDate);
+    return new UserProgress(categoryStats, goalStats, totalSolved, streakDays, lastActiveDate);
   }
 
-  public recordAttempt(topic: Lk20Topic1T, isCorrect: boolean): UserProgress {
+  public recordAttempt(topic: Lk20Topic1T, isCorrect: boolean, goalLabel?: string): UserProgress {
     const today = new Date().toISOString().split('T')[0];
     const current = this.categoryStats.get(topic) || {
       topic,
@@ -58,6 +67,24 @@ export class UserProgress {
       masteryPercentage: newMastery,
     });
 
+    const newGoalMap = new Map(this.goalStats);
+    if (goalLabel) {
+      const currentGoal = newGoalMap.get(goalLabel) ?? {
+        goalLabel,
+        tasksAttempted: 0,
+        tasksCorrect: 0,
+        masteryPercentage: 0,
+      };
+      const goalAttempted = currentGoal.tasksAttempted + 1;
+      const goalCorrect = currentGoal.tasksCorrect + (isCorrect ? 1 : 0);
+      newGoalMap.set(goalLabel, {
+        goalLabel,
+        tasksAttempted: goalAttempted,
+        tasksCorrect: goalCorrect,
+        masteryPercentage: Math.round((goalCorrect / goalAttempted) * 100),
+      });
+    }
+
     let newStreak = this.streakDays;
     if (this.lastActiveDate !== today) {
       const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
@@ -70,6 +97,7 @@ export class UserProgress {
 
     return new UserProgress(
       newMap,
+      newGoalMap,
       this.totalSolved + (isCorrect ? 1 : 0),
       newStreak,
       today

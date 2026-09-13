@@ -60,4 +60,23 @@ describe('QuizSession Aggregate', () => {
     expect(session.answeredWithReasoningCount).toBe(1);
     expect(session.answers.get(task1.id.value)?.reasoning).toContain('isolerer x');
   });
+
+  it('skal beregne resultat per modul', () => {
+    const secondTask = Task.create({
+      title: Title.create('Oppgave 2').value,
+      description: LatexDescription.create('$x + 2 = 5$').value,
+      difficulty: Difficulty.create(DifficultyLevel.LETT).value,
+      category: Lk20Category.create(Lk20Topic1T.TALL_OG_ALGEBRA).value,
+      solutionSteps: [SolutionStep.create(1, 'Trekk fra 2', 'x = 3').value],
+      correctAnswer: { type: 'numeric', value: 3 },
+    }).value;
+    const session = QuizSession.create([task1, secondTask], 'Blandet').value;
+
+    session.submitAnswer(StudentAnswer.create({ type: 'numeric', value: 2 }).value);
+    const topicScores = session.calculateTopicScores();
+
+    expect(topicScores).toHaveLength(2);
+    expect(topicScores.find((score) => score.topic === Lk20Topic1T.LIGNINGER_OG_ULIKHETER)?.percentage).toBe(100);
+    expect(topicScores.find((score) => score.topic === Lk20Topic1T.TALL_OG_ALGEBRA)?.percentage).toBe(0);
+  });
 });

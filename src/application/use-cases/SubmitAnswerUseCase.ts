@@ -50,7 +50,8 @@ export class SubmitAnswerUseCase {
     const currentProgress = await this.progressRepository.getProgress();
     const updatedProgress = currentProgress.recordAttempt(
       task.category.mainTopic,
-      evalAnalysisResult.value.result.isCorrect
+      evalAnalysisResult.value.result.isCorrect,
+      task.category.subCompetenceGoal
     );
     await this.progressRepository.saveProgress(updatedProgress);
 

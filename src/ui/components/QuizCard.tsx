@@ -29,6 +29,7 @@ export const QuizCard: React.FC<QuizCardProps> = ({
   isExamMode,
 }) => {
   const [inputValue, setInputValue] = useState('');
+  const [selectedOptionIndex, setSelectedOptionIndex] = useState<number | null>(null);
   const [reasoning, setReasoning] = useState('');
   const [evaluation, setEvaluation] = useState<ExtendedEvaluationResult | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -44,11 +45,21 @@ export const QuizCard: React.FC<QuizCardProps> = ({
     setIsSubmitting(true);
 
     let answerValue: AnswerValue;
-    if (task.correctAnswer.type === 'numeric') {
-      const parsedNum = parseFloat(inputValue.replace(',', '.'));
-      answerValue = { type: 'numeric', value: parsedNum };
-    } else {
-      answerValue = { type: 'expression', latex: inputValue };
+    switch (task.correctAnswer.type) {
+      case 'numeric':
+        answerValue = { type: 'numeric', value: Number.parseFloat(inputValue.replace(',', '.')) };
+        break;
+      case 'multipleChoice':
+        answerValue = {
+          type: 'multipleChoice',
+          selectedOptionIndex: selectedOptionIndex ?? -1,
+        };
+        break;
+      case 'text':
+        answerValue = { type: 'text', text: inputValue };
+        break;
+      default:
+        answerValue = { type: 'expression', latex: inputValue };
     }
 
     const res = await onSubmitAnswer(answerValue, currentHintLevel, reasoning);
@@ -58,6 +69,7 @@ export const QuizCard: React.FC<QuizCardProps> = ({
 
   const handleNextClick = () => {
     setInputValue('');
+    setSelectedOptionIndex(null);
     setReasoning('');
     setEvaluation(null);
     setCurrentHintLevel(0);
@@ -73,7 +85,7 @@ export const QuizCard: React.FC<QuizCardProps> = ({
             Oppgave {taskIndex + 1} av {totalTasks}
           </span>
           <span className="text-xs font-medium text-slate-400">
-            {task.category.mainTopic.replace(/_/g, ' ')}
+            {task.category.mainTopic.replaceAll('_', ' ')}
           </span>
         </div>
 
@@ -95,6 +107,11 @@ export const QuizCard: React.FC<QuizCardProps> = ({
         <h2 className="text-2xl font-extrabold text-white mb-3">
           {task.title.value}
         </h2>
+        {task.category.subCompetenceGoal && (
+          <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-indigo-300">
+            Delmål: {task.category.subCompetenceGoal}
+          </p>
+        )}
         <div className="text-lg text-slate-200 leading-relaxed bg-slate-800/50 p-4 rounded-2xl border border-slate-700/50">
           <MathView latex={task.description.rawLatex} />
         </div>
@@ -103,21 +120,51 @@ export const QuizCard: React.FC<QuizCardProps> = ({
       {/* Answer Form */}
       <form onSubmit={handleFormSubmit} className="mb-6">
         <label className="block text-sm font-semibold text-slate-300 mb-2">
-          Ditt svar (tall eller matematisk uttrykk):
+          {task.correctAnswer.type === 'multipleChoice'
+            ? 'Velg ett alternativ:'
+            : task.correctAnswer.type === 'text'
+            ? 'Skriv svaret ditt:'
+            : 'Ditt svar (tall eller matematisk uttrykk):'}
         </label>
         <div className="flex flex-col sm:flex-row gap-3">
-          <input
-            type="text"
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            disabled={isExamMode ? Boolean(evaluation) : evaluation?.result.isCorrect}
-            placeholder={
-              task.correctAnswer.type === 'numeric'
-                ? 'f.eks. 3.14 eller 4'
-                : 'f.eks. x + 2 eller (x-3)(x+3)'
-            }
-            className="flex-1 px-4 py-3 rounded-xl bg-slate-800 text-white border border-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 font-mono text-base placeholder-slate-500 disabled:opacity-60"
-          />
+          {task.correctAnswer.type === 'multipleChoice' ? (
+            <div className="grid w-full gap-2 sm:grid-cols-2">
+              {(task.correctAnswer.options ?? []).map((option, index) => (
+                <button
+                  key={option}
+                  type="button"
+                  onClick={() => {
+                    setSelectedOptionIndex(index);
+                    setInputValue(String(index));
+                  }}
+                  disabled={Boolean(evaluation)}
+                  className={`rounded-xl border px-4 py-3 text-left text-sm transition-colors disabled:opacity-60 ${
+                    selectedOptionIndex === index
+                      ? 'border-indigo-400 bg-indigo-950 text-indigo-100'
+                      : 'border-slate-700 bg-slate-800 text-slate-200 hover:border-slate-500'
+                  }`}
+                >
+                  <span className="mr-2 font-bold text-slate-400">{String.fromCodePoint(65 + index)}.</span>
+                  <MathView latex={option} />
+                </button>
+              ))}
+            </div>
+          ) : (
+            <input
+              type="text"
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              disabled={isExamMode ? Boolean(evaluation) : evaluation?.result.isCorrect}
+              placeholder={
+                task.correctAnswer.type === 'numeric'
+                  ? 'f.eks. 3.14 eller 4'
+                  : task.correctAnswer.type === 'text'
+                  ? 'Skriv et kort svar'
+                  : 'f.eks. x + 2 eller (x-3)(x+3)'
+              }
+              className="flex-1 px-4 py-3 rounded-xl bg-slate-800 text-white border border-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 font-mono text-base placeholder-slate-500 disabled:opacity-60"
+            />
+          )}
           {isExamMode && (
             <textarea
               value={reasoning}
@@ -130,7 +177,11 @@ export const QuizCard: React.FC<QuizCardProps> = ({
           )}
           <button
             type="submit"
-            disabled={!inputValue.trim() || isSubmitting || Boolean(evaluation)}
+            disabled={
+              (!inputValue.trim() && selectedOptionIndex === null) ||
+              isSubmitting ||
+              Boolean(evaluation)
+            }
             className="px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-800 text-white font-bold text-sm transition-colors shadow-lg shadow-indigo-600/20 flex items-center justify-center gap-2 border border-indigo-500/40"
           >
             {isSubmitting ? (
@@ -212,7 +263,7 @@ export const QuizCard: React.FC<QuizCardProps> = ({
         {evaluation && (
           <button
             onClick={handleNextClick}
-            className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-bold text-sm flex items-center gap-2 shadow-lg shadow-indigo-500/20 transition-all ml-auto"
+            className="px-5 py-2.5 rounded-xl bg-linear-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-bold text-sm flex items-center gap-2 shadow-lg shadow-indigo-500/20 transition-all ml-auto"
           >
             <span>{isLastTask ? 'Fullfør sesjon' : 'Neste oppgave'}</span>
             <ArrowRight className="w-4 h-4" />

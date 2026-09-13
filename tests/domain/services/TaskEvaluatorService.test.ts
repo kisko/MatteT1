@@ -61,4 +61,17 @@ describe('TaskEvaluatorService', () => {
       expect(res.value.result.isCorrect).toBe(false);
     }
   });
+
+  it('skal gi retning uten å avsløre fasiten ved feil numerisk svar', () => {
+    const expected = { type: 'numeric' as const, value: 42 };
+    const answer = StudentAnswer.create({ type: 'numeric', value: 17 }).value;
+
+    const res = TaskEvaluatorService.evaluateWithAnalysis(expected, answer);
+    expect(res.isSuccess).toBe(true);
+    if (res.isSuccess) {
+      expect(res.value.result.isCorrect).toBe(false);
+      expect(res.value.result.feedbackLatex).not.toContain('42');
+      expect(res.value.result.feedbackLatex).toContain('Prøv igjen');
+    }
+  });
 });

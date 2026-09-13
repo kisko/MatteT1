@@ -75,7 +75,7 @@ export const QuizView: React.FC<QuizViewProps> = ({
         </button>
 
         <span className="text-sm font-bold text-indigo-300">
-          Øving: {session.topicTitle.replace(/_/g, ' ')}
+          Øving: {session.topicTitle.replaceAll('_', ' ')}
         </span>
         {isExamMode && (
           <span className={`text-sm font-bold ${remainingSeconds < 300 ? 'text-rose-300' : 'text-amber-300'}`}>
@@ -99,6 +99,7 @@ export const QuizView: React.FC<QuizViewProps> = ({
       {isCompleted && (
         <QuizSummaryModal
           scoreSummary={session.calculateTotalScore()}
+          topicScores={session.calculateTopicScores()}
           totalTasks={session.totalTasks}
           isExamMode={isExamMode}
           onRestart={onRestart}

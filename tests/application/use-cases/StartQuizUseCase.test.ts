@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { StartQuizUseCase } from '../../../src/application/use-cases/StartQuizUseCase.js';
 import { InMemoryTaskRepository } from '../../../src/infrastructure/persistence/InMemoryTaskRepository.js';
 import { Lk20Topic1T } from '../../../src/domain/model/task/value-objects/Lk20Category.js';
+import { DifficultyLevel } from '../../../src/domain/model/task/value-objects/Difficulty.js';
 
 describe('StartQuizUseCase', () => {
   it('skal starte en quiz-sesjon for et gyldig tema', async () => {
@@ -43,6 +44,36 @@ describe('StartQuizUseCase', () => {
       expect(result.value.totalTasks).toBe(12);
       expect(new Set(result.value.tasks.map((task) => task.category.mainTopic)).size).toBeGreaterThanOrEqual(5);
       expect(result.value.tasks.every((task) => task.category.mainTopic !== Lk20Topic1T.SANNSYNLIGHET)).toBe(true);
+      expect(result.value.tasks.filter((task) => task.difficulty.level === DifficultyLevel.LETT).length).toBeGreaterThanOrEqual(2);
+      expect(result.value.tasks.filter((task) => task.difficulty.level === DifficultyLevel.MIDDELS).length).toBeGreaterThanOrEqual(4);
+      expect(result.value.tasks.filter((task) => task.difficulty.level === DifficultyLevel.KREVENDE).length).toBeGreaterThanOrEqual(2);
+    }
+  });
+
+  it('skal starte en målrettet økt for ett kompetansemål', async () => {
+    const repo = new InMemoryTaskRepository();
+    const useCase = new StartQuizUseCase(repo);
+
+    const goalLabels = ['Nullpunkter', 'Andregradsfunksjoner', 'Parametre'];
+    const result = await useCase.executeGoal(Lk20Topic1T.FUNKSJONER, goalLabels);
+
+    expect(result.isSuccess).toBe(true);
+    if (result.isSuccess) {
+      expect(result.value.tasks.length).toBeGreaterThanOrEqual(2);
+      expect(result.value.tasks.every((task) => goalLabels.includes(task.category.subCompetenceGoal ?? ''))).toBe(true);
+    }
+  });
+
+  it('skal kunne starte en full eksamensøkt med utvidet tid', async () => {
+    const repo = new InMemoryTaskRepository();
+    const useCase = new StartQuizUseCase(repo);
+
+    const result = await useCase.executeExam(24);
+
+    expect(result.isSuccess).toBe(true);
+    if (result.isSuccess) {
+      expect(result.value.totalTasks).toBe(24);
+      expect(result.value.timeLimitSeconds).toBe(90 * 60);
     }
   });
 });
