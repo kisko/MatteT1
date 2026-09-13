@@ -39,10 +39,6 @@ export const VideoModal: React.FC<VideoModalProps> = ({
     }
   };
 
-  const handleOpenExternal = () => {
-    window.open(video.url, '_blank', 'noopener,noreferrer');
-  };
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fadeIn">
       <div className="relative w-full max-w-lg bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl p-5 sm:p-6 overflow-hidden flex flex-col">
@@ -103,10 +99,6 @@ export const VideoModal: React.FC<VideoModalProps> = ({
             href={video.url}
             target="_blank"
             rel="noopener noreferrer"
-            onClick={(e) => {
-              // Sikrer at window.open kalles som fallback i webviews/PWAs
-              handleOpenExternal();
-            }}
             className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs sm:text-sm font-bold shadow-lg shadow-rose-600/25 transition-colors"
           >
             <ExternalLink className="w-4 h-4" />
