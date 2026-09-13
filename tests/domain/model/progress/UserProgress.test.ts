@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { UserProgress } from '../../../../src/domain/model/progress/UserProgress.js';
 import { Lk20Topic1T } from '../../../../src/domain/model/task/value-objects/Lk20Category.js';
+import { MisconceptionType } from '../../../../src/domain/model/task/Misconception.js';
 
 describe('UserProgress', () => {
   it('skal opprette tom progression og registrere forsøk', () => {
@@ -15,6 +16,31 @@ describe('UserProgress', () => {
     expect(stat?.tasksCorrect).toBe(1);
     expect(stat?.masteryPercentage).toBe(100);
     expect(updated.goalStats.get('Nullpunkter')?.masteryPercentage).toBe(100);
+  });
+
+  it('skal registrere og akkumulere misoppfatninger', () => {
+    const progress = UserProgress.createEmpty();
+    const updated1 = progress.recordAttempt(
+      Lk20Topic1T.TALL_OG_ALGEBRA,
+      false,
+      'Kvadratsetninger',
+      MisconceptionType.BRACKET_EXPANSION_ERROR
+    );
+    const updated2 = updated1.recordAttempt(
+      Lk20Topic1T.TALL_OG_ALGEBRA,
+      false,
+      'Kvadratsetninger',
+      MisconceptionType.BRACKET_EXPANSION_ERROR
+    );
+    const updated3 = updated2.recordAttempt(
+      Lk20Topic1T.LIGNINGER_OG_ULIKHETER,
+      false,
+      'Andregradsligninger',
+      MisconceptionType.FORGOT_NEGATIVE_ROOT
+    );
+
+    expect(updated3.misconceptionStats.get(MisconceptionType.BRACKET_EXPANSION_ERROR)).toBe(2);
+    expect(updated3.misconceptionStats.get(MisconceptionType.FORGOT_NEGATIVE_ROOT)).toBe(1);
   });
 
   it('skal beholde progresjon ved feil svar uten kompetansemål', () => {

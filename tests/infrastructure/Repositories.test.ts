@@ -1,9 +1,11 @@
 import { describe, it, expect } from 'vitest';
 import { InMemoryTaskRepository } from '../../src/infrastructure/persistence/InMemoryTaskRepository.js';
 import { LocalStorageProgressRepository } from '../../src/infrastructure/persistence/LocalStorageProgressRepository.js';
+import { IndexedDbProgressRepository } from '../../src/infrastructure/persistence/IndexedDbProgressRepository.js';
 import { Lk20Topic1T } from '../../src/domain/model/task/value-objects/Lk20Category.js';
 import { UserProgress } from '../../src/domain/model/progress/UserProgress.js';
-import { StudentAnswer } from '../../src/domain/task/value-objects/StudentAnswer.js';
+import { StudentAnswer } from '../../src/domain/model/task/value-objects/StudentAnswer.js';
+import { MisconceptionType } from '../../src/domain/model/task/Misconception.js';
 
 describe('Infrastructure Repositories', () => {
   it('InMemoryTaskRepository skal hente oppgaver etter id, tema og alle', async () => {
@@ -74,10 +76,33 @@ describe('Infrastructure Repositories', () => {
     const initialProgress = await repo.getProgress();
     expect(initialProgress.totalSolved).toBe(0);
 
-    const updated = initialProgress.recordAttempt(Lk20Topic1T.FUNKSJONER, true);
+    const updated = initialProgress.recordAttempt(
+      Lk20Topic1T.FUNKSJONER,
+      true,
+      'Rasjonale funksjoner',
+      MisconceptionType.SIGN_ERROR
+    );
     await repo.saveProgress(updated);
 
     const reloaded = await repo.getProgress();
     expect(reloaded.totalSolved).toBe(1);
+    expect(reloaded.misconceptionStats.get(MisconceptionType.SIGN_ERROR)).toBe(1);
+  });
+
+  it('IndexedDbProgressRepository faller trygt tilbake til minne/LocalStorage ved behov', async () => {
+    const repo = new IndexedDbProgressRepository();
+    const progress = await repo.getProgress();
+    expect(progress).toBeDefined();
+
+    const updated = progress.recordAttempt(
+      Lk20Topic1T.TALL_OG_ALGEBRA,
+      false,
+      'Potensregler',
+      MisconceptionType.EXPONENT_RULE_ERROR
+    );
+    await repo.saveProgress(updated);
+
+    const reloaded = await repo.getProgress();
+    expect(reloaded.misconceptionStats.get(MisconceptionType.EXPONENT_RULE_ERROR)).toBe(1);
   });
 });

@@ -1,4 +1,5 @@
 import { Lk20Topic1T } from '../task/value-objects/Lk20Category.js';
+import { MisconceptionType } from '../task/Misconception.js';
 
 export interface CategoryMastery {
   readonly topic: Lk20Topic1T;
@@ -20,7 +21,8 @@ export class UserProgress {
     public readonly goalStats: Map<string, GoalMastery>,
     public readonly totalSolved: number,
     public readonly streakDays: number,
-    public readonly lastActiveDate: string
+    public readonly lastActiveDate: string,
+    public readonly misconceptionStats: Map<MisconceptionType, number> = new Map()
   ) {}
 
   public static createEmpty(): UserProgress {
@@ -33,7 +35,7 @@ export class UserProgress {
         masteryPercentage: 0,
       });
     }
-    return new UserProgress(map, new Map(), 0, 0, new Date().toISOString().split('T')[0]);
+    return new UserProgress(map, new Map(), 0, 0, new Date().toISOString().split('T')[0], new Map());
   }
 
   public static fromData(
@@ -41,12 +43,18 @@ export class UserProgress {
     totalSolved: number,
     streakDays: number,
     lastActiveDate: string,
-    goalStats: Map<string, GoalMastery> = new Map()
+    goalStats: Map<string, GoalMastery> = new Map(),
+    misconceptionStats: Map<MisconceptionType, number> = new Map()
   ): UserProgress {
-    return new UserProgress(categoryStats, goalStats, totalSolved, streakDays, lastActiveDate);
+    return new UserProgress(categoryStats, goalStats, totalSolved, streakDays, lastActiveDate, misconceptionStats);
   }
 
-  public recordAttempt(topic: Lk20Topic1T, isCorrect: boolean, goalLabel?: string): UserProgress {
+  public recordAttempt(
+    topic: Lk20Topic1T,
+    isCorrect: boolean,
+    goalLabel?: string,
+    misconceptionType?: MisconceptionType
+  ): UserProgress {
     const today = new Date().toISOString().split('T')[0];
     const current = this.categoryStats.get(topic) || {
       topic,
@@ -85,6 +93,12 @@ export class UserProgress {
       });
     }
 
+    const newMisconceptionMap = new Map(this.misconceptionStats);
+    if (misconceptionType && misconceptionType !== MisconceptionType.NONE) {
+      const prevCount = newMisconceptionMap.get(misconceptionType) ?? 0;
+      newMisconceptionMap.set(misconceptionType, prevCount + 1);
+    }
+
     let newStreak = this.streakDays;
     if (this.lastActiveDate !== today) {
       const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
@@ -100,7 +114,8 @@ export class UserProgress {
       newGoalMap,
       this.totalSolved + (isCorrect ? 1 : 0),
       newStreak,
-      today
+      today,
+      newMisconceptionMap
     );
   }
 }

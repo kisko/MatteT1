@@ -22,6 +22,7 @@ export class LocalStorageProgressRepository implements ProgressRepositoryPort {
       const parsed = JSON.parse(raw);
       const map = new Map<Lk20Topic1T, CategoryMastery>();
       const goalMap = new Map<string, GoalMastery>();
+      const misconceptionMap = new Map();
 
       if (parsed.categoryStats) {
         for (const [topicKey, stat] of Object.entries(parsed.categoryStats)) {
@@ -32,6 +33,12 @@ export class LocalStorageProgressRepository implements ProgressRepositoryPort {
       if (parsed.goalStats) {
         for (const [goalLabel, stat] of Object.entries(parsed.goalStats)) {
           goalMap.set(goalLabel, stat as GoalMastery);
+        }
+      }
+
+      if (parsed.misconceptionStats) {
+        for (const [miscType, count] of Object.entries(parsed.misconceptionStats)) {
+          misconceptionMap.set(miscType, Number(count));
         }
       }
 
@@ -52,7 +59,8 @@ export class LocalStorageProgressRepository implements ProgressRepositoryPort {
         parsed.totalSolved ?? 0,
         parsed.streakDays ?? 0,
         parsed.lastActiveDate ?? new Date().toISOString().split('T')[0],
-        goalMap
+        goalMap,
+        misconceptionMap
       );
     } catch {
       return UserProgress.createEmpty();
@@ -67,6 +75,7 @@ export class LocalStorageProgressRepository implements ProgressRepositoryPort {
         lastActiveDate: progress.lastActiveDate,
         categoryStats: Object.fromEntries(progress.categoryStats),
         goalStats: Object.fromEntries(progress.goalStats),
+        misconceptionStats: Object.fromEntries(progress.misconceptionStats),
       };
       const jsonStr = JSON.stringify(serializedObj);
       this.memoryFallback = jsonStr;

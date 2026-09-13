@@ -5,7 +5,7 @@ import { QuizSession } from './domain/model/quiz/QuizSession.js';
 import { AnswerValue } from './domain/model/task/value-objects/StudentAnswer.js';
 import { ExtendedEvaluationResult } from './domain/services/TaskEvaluatorService.js';
 import { InMemoryTaskRepository } from './infrastructure/persistence/InMemoryTaskRepository.js';
-import { LocalStorageProgressRepository } from './infrastructure/persistence/LocalStorageProgressRepository.js';
+import { IndexedDbProgressRepository } from './infrastructure/persistence/IndexedDbProgressRepository.js';
 import { StartQuizUseCase } from './application/use-cases/StartQuizUseCase.js';
 import { SubmitAnswerUseCase } from './application/use-cases/SubmitAnswerUseCase.js';
 import { Navbar } from './ui/components/Navbar.js';
@@ -21,7 +21,7 @@ const QuizView = lazy(() => import('./ui/views/QuizView.js').then((module) => ({
 const LectureView = lazy(() => import('./ui/views/LectureView.js').then((module) => ({ default: module.LectureView })));
 
 const taskRepo = new InMemoryTaskRepository();
-const progressRepo = new LocalStorageProgressRepository();
+const progressRepo = new IndexedDbProgressRepository();
 const startQuizUseCase = new StartQuizUseCase(taskRepo);
 const submitAnswerUseCase = new SubmitAnswerUseCase(progressRepo);
 

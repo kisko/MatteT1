@@ -3,8 +3,9 @@ import { COMPETENCE_MATRIX } from '../../domain/curriculum/CompetenceMatrix.js';
 import React from 'react';
 import { Lk20Topic1T } from '../../domain/model/task/value-objects/Lk20Category.js';
 import { UserProgress } from '../../domain/model/progress/UserProgress.js';
+import { MISCONCEPTION_INFO, MisconceptionType } from '../../domain/model/task/Misconception.js';
 import { CategoryCard } from '../components/CategoryCard.js';
-import { Sparkles, BookOpenCheck, Target, Timer, TableProperties } from 'lucide-react';
+import { Sparkles, BookOpenCheck, Target, Timer, TableProperties, AlertTriangle, Lightbulb } from 'lucide-react';
 
 interface DashboardViewProps {
   progress: UserProgress;
@@ -131,6 +132,35 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           Start med leksjonen. Hovedemnene dekker kompetansemålene; sannsynlighet ligger som ekstra repetisjon.
         </p>
       </div>
+
+      {/* Misoppfatningsdiagnose */}
+      {progress.misconceptionStats.size > 0 && (
+        <section className="mb-8 rounded-2xl border border-rose-500/30 bg-rose-950/20 p-5" aria-labelledby="diagnosis-heading">
+          <div className="flex items-center gap-2 mb-3">
+            <AlertTriangle className="h-5 w-5 text-rose-400" />
+            <h3 id="diagnosis-heading" className="text-base font-bold text-white">
+              Pedagogisk analyse: Misoppfatninger å være oppmerksom på
+            </h3>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {Array.from(progress.misconceptionStats.entries()).map(([miscType, count]) => {
+              const info = MISCONCEPTION_INFO[miscType as Exclude<MisconceptionType, MisconceptionType.NONE>];
+              if (!info) return null;
+              return (
+                <div key={miscType} className="rounded-xl border border-rose-500/20 bg-slate-900/80 p-3.5">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-sm font-bold text-rose-200">{info.title}</span>
+                    <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300">
+                      {count} {count === 1 ? 'gang' : 'ganger'}
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-300 leading-relaxed">{info.tip}</p>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      )}
 
       {weakestGoal && (
         <section className="mb-8 rounded-2xl border border-amber-400/30 bg-amber-950/20 p-5" aria-labelledby="next-step-heading">
