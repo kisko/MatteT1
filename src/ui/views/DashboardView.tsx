@@ -4,7 +4,7 @@ import React from 'react';
 import { Lk20Topic1T } from '../../domain/model/task/value-objects/Lk20Category.js';
 import { UserProgress } from '../../domain/model/progress/UserProgress.js';
 import { CategoryCard } from '../components/CategoryCard.js';
-import { Sparkles, BookOpenCheck, Target, Timer } from 'lucide-react';
+import { Sparkles, BookOpenCheck, Target, Timer, TableProperties } from 'lucide-react';
 
 interface DashboardViewProps {
   progress: UserProgress;
@@ -12,6 +12,7 @@ interface DashboardViewProps {
   onStartTopic: (topic: Lk20Topic1T) => void;
   onStartGoal: (topic: Lk20Topic1T, goalLabels: readonly string[]) => void;
   onStartExam: (taskCount?: number) => void;
+  onOpenMatrix: () => void;
 }
 
 export const DashboardView: React.FC<DashboardViewProps> = ({
@@ -20,6 +21,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   onStartTopic,
     onStartGoal,
   onStartExam,
+    onOpenMatrix,
 }) => {
   const topics = Object.values(Lk20Topic1T);
 
@@ -113,9 +115,18 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
       {/* Emneoversikt (Grid of Categories) */}
       <div className="mb-6">
-        <h2 className="text-2xl font-bold text-white mb-2">
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-2">
+          <h2 className="text-2xl font-bold text-white">
           Fagplanemner (MAT09-02)
-        </h2>
+          </h2>
+          <button
+            onClick={onOpenMatrix}
+            className="inline-flex items-center gap-2 rounded-lg border border-indigo-400/40 bg-indigo-500/10 px-3 py-2 text-sm font-semibold text-indigo-200 transition-colors hover:bg-indigo-500/20"
+          >
+            <TableProperties className="h-4 w-4" />
+            Kompetansemål
+          </button>
+        </div>
         <p className="text-sm text-slate-400">
           Start med leksjonen. Hovedemnene dekker kompetansemålene; sannsynlighet ligger som ekstra repetisjon.
         </p>
@@ -165,72 +176,6 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         })}
       </div>
 
-      <section className="mt-12" aria-labelledby="competence-matrix-heading">
-        <div className="mb-6">
-          <h2 id="competence-matrix-heading" className="text-2xl font-bold text-white mb-2">
-            Kompetansemålmatrise
-          </h2>
-          <p className="text-sm text-slate-400">
-            Se hvilke mål oppgavebanken dekker, og hvor det fortsatt trengs mer trening.
-          </p>
-        </div>
-        <div className="space-y-5">
-          {COMPETENCE_MATRIX.map((definition) => (
-            <div key={definition.topic} className="rounded-2xl border border-slate-800 bg-slate-900/50 p-5">
-              <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
-                <div>
-                  <h3 className="text-lg font-bold text-white">{definition.title}</h3>
-                  <p className="text-sm text-slate-400 mt-1">{definition.description}</p>
-                </div>
-                <span className="text-xs font-semibold text-slate-400">
-                  {taskCatalog.filter((task) => task.category.mainTopic === definition.topic).length} oppgaver totalt
-                </span>
-              </div>
-              <div className="grid gap-3 md:grid-cols-2">
-                {definition.goals.map((goal) => {
-                  const availableTasks = taskCatalog.filter(
-                    (task) => task.category.mainTopic === definition.topic && goal.taskLabels.includes(task.category.subCompetenceGoal ?? '')
-                  ).length;
-                  const coverage = Math.min(100, Math.round((availableTasks / goal.targetTasks) * 100));
-                  const mastery = goal.taskLabels
-                    .map((label) => progress.goalStats.get(label))
-                    .filter((stat): stat is NonNullable<typeof stat> => Boolean(stat));
-                  const attempted = mastery.reduce((sum, stat) => sum + stat.tasksAttempted, 0);
-                  const correct = mastery.reduce((sum, stat) => sum + stat.tasksCorrect, 0);
-                  const masteryPercentage = attempted > 0 ? Math.round((correct / attempted) * 100) : null;
-
-                  return (
-                    <div key={goal.id} className="rounded-xl border border-slate-800/80 bg-slate-950/50 p-4">
-                      <div className="flex items-start justify-between gap-3">
-                        <div>
-                          <p className="text-xs font-bold tracking-wide text-indigo-300">{goal.id}</p>
-                          <h4 className="font-semibold text-slate-100 mt-1">{goal.title}</h4>
-                        </div>
-                        <span className={`text-xs font-bold ${masteryPercentage !== null && masteryPercentage >= 70 ? 'text-emerald-300' : 'text-amber-300'}`}>
-                          {masteryPercentage === null ? 'Ikke prøvd' : `${masteryPercentage}% mestret`}
-                        </span>
-                      </div>
-                      <p className="text-xs leading-relaxed text-slate-400 mt-2">{goal.description}</p>
-                      <div className="mt-3 flex items-center gap-2">
-                        <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-slate-800" aria-label={`${coverage}% oppavedekning`}>
-                          <div className={`h-full rounded-full ${coverage >= 100 ? 'bg-emerald-400' : 'bg-amber-400'}`} style={{ width: `${coverage}%` }} />
-                        </div>
-                        <span className="text-[10px] text-slate-500">{availableTasks}/{goal.targetTasks} oppgaver</span>
-                      </div>
-                      <button
-                        onClick={() => onStartGoal(definition.topic, goal.taskLabels)}
-                        className="mt-3 text-xs font-semibold text-indigo-300 transition-colors hover:text-indigo-200"
-                      >
-                        Øv på dette målet
-                      </button>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
     </div>
   );
 };

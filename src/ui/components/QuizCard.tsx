@@ -47,7 +47,7 @@ export const QuizCard: React.FC<QuizCardProps> = ({
     let answerValue: AnswerValue;
     switch (task.correctAnswer.type) {
       case 'numeric':
-        answerValue = { type: 'numeric', value: Number.parseFloat(inputValue.replace(',', '.')) };
+        answerValue = { type: 'numeric', value: parseFloat(inputValue.replace(',', '.')) };
         break;
       case 'multipleChoice':
         answerValue = {
@@ -85,7 +85,7 @@ export const QuizCard: React.FC<QuizCardProps> = ({
             Oppgave {taskIndex + 1} av {totalTasks}
           </span>
           <span className="text-xs font-medium text-slate-400">
-            {task.category.mainTopic.replaceAll('_', ' ')}
+            {task.category.mainTopic.replace(/_/g, ' ')}
           </span>
         </div>
 
@@ -107,11 +107,6 @@ export const QuizCard: React.FC<QuizCardProps> = ({
         <h2 className="text-2xl font-extrabold text-white mb-3">
           {task.title.value}
         </h2>
-        {task.category.subCompetenceGoal && (
-          <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-indigo-300">
-            Delmål: {task.category.subCompetenceGoal}
-          </p>
-        )}
         <div className="text-lg text-slate-200 leading-relaxed bg-slate-800/50 p-4 rounded-2xl border border-slate-700/50">
           <MathView latex={task.description.rawLatex} />
         </div>
@@ -144,7 +139,7 @@ export const QuizCard: React.FC<QuizCardProps> = ({
                       : 'border-slate-700 bg-slate-800 text-slate-200 hover:border-slate-500'
                   }`}
                 >
-                  <span className="mr-2 font-bold text-slate-400">{String.fromCodePoint(65 + index)}.</span>
+                  <span className="mr-2 font-bold text-slate-400">{String.fromCharCode(65 + index)}.</span>
                   <MathView latex={option} />
                 </button>
               ))}
@@ -263,7 +258,7 @@ export const QuizCard: React.FC<QuizCardProps> = ({
         {evaluation && (
           <button
             onClick={handleNextClick}
-            className="px-5 py-2.5 rounded-xl bg-linear-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-bold text-sm flex items-center gap-2 shadow-lg shadow-indigo-500/20 transition-all ml-auto"
+            className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-bold text-sm flex items-center gap-2 shadow-lg shadow-indigo-500/20 transition-all ml-auto"
           >
             <span>{isLastTask ? 'Fullfør sesjon' : 'Neste oppgave'}</span>
             <ArrowRight className="w-4 h-4" />

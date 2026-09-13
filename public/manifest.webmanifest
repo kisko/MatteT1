@@ -1,0 +1,18 @@
+{
+  "name": "MatteT1",
+  "short_name": "MatteT1",
+  "description": "Interaktiv matematikktrening for VG1 1T.",
+  "lang": "no",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

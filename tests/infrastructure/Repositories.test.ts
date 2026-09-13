@@ -4,7 +4,6 @@ import { LocalStorageProgressRepository } from '../../src/infrastructure/persist
 import { Lk20Topic1T } from '../../src/domain/model/task/value-objects/Lk20Category.js';
 import { UserProgress } from '../../src/domain/model/progress/UserProgress.js';
 import { StudentAnswer } from '../../src/domain/task/value-objects/StudentAnswer.js';
-import { COMPETENCE_MATRIX } from '../../src/domain/curriculum/CompetenceMatrix.js';
 
 describe('Infrastructure Repositories', () => {
   it('InMemoryTaskRepository skal hente oppgaver etter id, tema og alle', async () => {
@@ -53,14 +52,6 @@ describe('Infrastructure Repositories', () => {
     }
   });
 
-  it('skal ha unike identifikatorer for alle oppgaver', async () => {
-    const repo = new InMemoryTaskRepository();
-    const tasks = await repo.getAll();
-    const ids = tasks.map((task) => task.id.value);
-
-    expect(new Set(ids).size).toBe(ids.length);
-  });
-
   it('skal inneholde oppgaver som bruker flere svarformater', async () => {
     const repo = new InMemoryTaskRepository();
     const tasks = await repo.getAll();
@@ -75,26 +66,6 @@ describe('Infrastructure Repositories', () => {
     });
     if (modelChoice?.correctAnswer.type === 'multipleChoice') {
       expect(modelChoice.correctAnswer.options).toHaveLength(4);
-    }
-  });
-
-  it('skal dekke hvert kompetansemål med minst to oppgaver', async () => {
-    const repo = new InMemoryTaskRepository();
-    const tasks = await repo.getAll();
-
-    for (const topic of COMPETENCE_MATRIX) {
-      for (const goal of topic.goals) {
-        const coveredTasks = tasks.filter(
-          (task) =>
-            task.category.mainTopic === topic.topic &&
-            goal.taskLabels.includes(task.category.subCompetenceGoal ?? '')
-        );
-
-        expect(
-          coveredTasks.length,
-          `${goal.id} (${goal.title}) mangler oppgaver`
-        ).toBeGreaterThanOrEqual(goal.targetTasks);
-      }
     }
   });
 

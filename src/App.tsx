@@ -10,6 +10,7 @@ import { StartQuizUseCase } from './application/use-cases/StartQuizUseCase.js';
 import { SubmitAnswerUseCase } from './application/use-cases/SubmitAnswerUseCase.js';
 import { Navbar } from './ui/components/Navbar.js';
 import { DashboardView } from './ui/views/DashboardView.js';
+import { CompetenceMatrixView } from './ui/views/CompetenceMatrixView.js';
 import { Task } from './domain/model/task/Task.js';
 
 const QuizView = lazy(() => import('./ui/views/QuizView.js').then((module) => ({ default: module.QuizView })));
@@ -21,7 +22,7 @@ const startQuizUseCase = new StartQuizUseCase(taskRepo);
 const submitAnswerUseCase = new SubmitAnswerUseCase(progressRepo);
 
 export const App: React.FC = () => {
-  const [currentView, setCurrentView] = useState<'dashboard' | 'lecture' | 'quiz'>('dashboard');
+  const [currentView, setCurrentView] = useState<'dashboard' | 'matrix' | 'lecture' | 'quiz'>('dashboard');
   const [progress, setProgress] = useState<UserProgress>(UserProgress.createEmpty());
   const [activeSession, setActiveSession] = useState<QuizSession | null>(null);
   const [activeTopic, setActiveTopic] = useState<Lk20Topic1T | null>(null);
@@ -133,6 +134,16 @@ export const App: React.FC = () => {
         onStartTopic={handleOpenTopic}
         onStartGoal={handleStartGoal}
         onStartExam={handleStartExam}
+        onOpenMatrix={() => setCurrentView('matrix')}
+      />
+    );
+  } else if (currentView === 'matrix') {
+    activeContent = (
+      <CompetenceMatrixView
+        progress={progress}
+        taskCatalog={taskCatalog}
+        onOpenModule={handleOpenTopic}
+        onStartGoal={handleStartGoal}
       />
     );
   } else if (currentView === 'lecture' && activeTopic) {
@@ -162,6 +173,8 @@ export const App: React.FC = () => {
         isDark={isDark}
         onToggleTheme={handleToggleTheme}
         onGoHome={handleGoHome}
+        onOpenMatrix={() => setCurrentView('matrix')}
+        isMatrixActive={currentView === 'matrix'}
       />
 
       <main>

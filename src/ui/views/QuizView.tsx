@@ -65,7 +65,7 @@ export const QuizView: React.FC<QuizViewProps> = ({
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Back Button & Header */}
-      <div className="mb-6 flex items-center justify-between">
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <button
           onClick={onGoHome}
           className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 text-xs font-semibold flex items-center gap-2 transition-colors"
@@ -74,7 +74,7 @@ export const QuizView: React.FC<QuizViewProps> = ({
           <span>Avbryt økt</span>
         </button>
 
-        <span className="text-sm font-bold text-indigo-300">
+        <span className="order-3 w-full truncate text-center text-xs font-bold text-indigo-300 sm:order-none sm:w-auto sm:text-sm">
           Øving: {session.topicTitle.replaceAll('_', ' ')}
         </span>
         {isExamMode && (

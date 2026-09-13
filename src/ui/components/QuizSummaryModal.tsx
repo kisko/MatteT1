@@ -29,7 +29,7 @@ export const QuizSummaryModal: React.FC<QuizSummaryModalProps> = ({
 }) => {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fadeIn">
-      <div className="w-full max-w-md bg-slate-900 border border-slate-700 rounded-3xl shadow-2xl p-8 text-center">
+      <div className="w-full max-w-md max-h-[calc(100dvh-2rem)] overflow-y-auto bg-slate-900 border border-slate-700 rounded-3xl shadow-2xl p-5 sm:p-8 text-center">
         <div className="w-16 h-16 rounded-full bg-linear-to-tr from-amber-500 to-yellow-300 p-0.5 mx-auto mb-4 shadow-lg shadow-amber-500/20">
           <div className="w-full h-full bg-slate-900 rounded-full flex items-center justify-center">
             <Trophy className="w-8 h-8 text-amber-400" />

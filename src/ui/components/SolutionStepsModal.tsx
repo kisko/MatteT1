@@ -18,12 +18,12 @@ export const SolutionStepsModal: React.FC<SolutionStepsModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fadeIn">
-      <div className="relative w-full max-w-2xl bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl p-6 overflow-hidden flex flex-col max-h-[90vh]">
+      <div className="relative w-full max-w-2xl bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl p-4 sm:p-6 overflow-hidden flex flex-col max-h-[calc(100dvh-2rem)] sm:max-h-[90vh]">
         {/* Header */}
         <div className="flex items-center justify-between pb-4 border-b border-slate-800">
           <div className="flex items-center gap-2">
             <CheckCircle2 className="w-6 h-6 text-emerald-400" />
-            <h3 className="text-xl font-bold text-white">
+            <h3 className="text-lg sm:text-xl font-bold text-white">
               Fullstendig løsningsforslag
             </h3>
           </div>
