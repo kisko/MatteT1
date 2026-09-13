@@ -63,5 +63,15 @@ describe('Value Objects', () => {
       const res = StudentAnswer.create({ type: 'numeric', value: NaN });
       expect(res.isFailure).toBe(true);
     });
+
+    it('skal avvise uendelig numerisk svar', () => {
+      const res = StudentAnswer.create({ type: 'numeric', value: Infinity });
+      expect(res.isFailure).toBe(true);
+    });
+
+    it('skal avvise tomt uttrykk og tekstsvar', () => {
+      expect(StudentAnswer.create({ type: 'expression', latex: '   ' }).isFailure).toBe(true);
+      expect(StudentAnswer.create({ type: 'text', text: '' }).isFailure).toBe(true);
+    });
   });
 });

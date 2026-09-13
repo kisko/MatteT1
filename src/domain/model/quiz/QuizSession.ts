@@ -1,9 +1,12 @@
 import { Result } from '../../shared/Result.js';
+import { AggregateRoot } from '../../shared/AggregateRoot.js';
 import { Task } from '../task/Task.js';
 import { StudentAnswer } from '../task/value-objects/StudentAnswer.js';
 import { EvaluationResult } from '../task/value-objects/EvaluationResult.js';
 import { createTaskError, TaskError } from '../task/errors/TaskError.js';
 import { Lk20Topic1T } from '../task/value-objects/Lk20Category.js';
+import { TaskAnsweredDomainEvent } from '../../events/TaskAnsweredDomainEvent.js';
+import { QuizCompletedDomainEvent } from '../../events/QuizCompletedDomainEvent.js';
 
 export class QuizSessionId {
   private constructor(public readonly value: string) {}
@@ -37,20 +40,26 @@ export interface TopicScoreSummary {
   readonly percentage: number;
 }
 
-export class QuizSession {
+export class QuizSession extends AggregateRoot<QuizSessionId> {
   private _currentIndex: number = 0;
   private readonly _answers: Map<string, TaskAnswerRecord> = new Map();
   private _isCompleted: boolean = false;
   private _completedAt?: Date;
 
   private constructor(
-    public readonly id: QuizSessionId,
+    private readonly _id: QuizSessionId,
     public readonly tasks: ReadonlyArray<Task>,
     public readonly topicTitle: string,
     public readonly startedAt: Date = new Date(),
     public readonly mode: QuizMode = 'practice',
     public readonly timeLimitSeconds?: number
-  ) {}
+  ) {
+    super();
+  }
+
+  public override get id(): QuizSessionId {
+    return this._id;
+  }
 
   public static create(
     tasks: Task[],
@@ -130,6 +139,18 @@ export class QuizSession {
       answeredAt: new Date(),
     });
 
+    this.addDomainEvent(
+      new TaskAnsweredDomainEvent(
+        this._id.value,
+        task.id.value,
+        task.category.mainTopic,
+        answer,
+        evalResult.value,
+        hintsUsedCount,
+        reasoning
+      )
+    );
+
     return evalResult;
   }
 
@@ -142,8 +163,7 @@ export class QuizSession {
       this._currentIndex++;
       return true;
     } else {
-      this._isCompleted = true;
-      this._completedAt = new Date();
+      this.complete();
       return false;
     }
   }
@@ -152,6 +172,17 @@ export class QuizSession {
     if (!this._isCompleted) {
       this._isCompleted = true;
       this._completedAt = new Date();
+      const score = this.calculateTotalScore();
+      this.addDomainEvent(
+        new QuizCompletedDomainEvent(
+          this._id.value,
+          this.topicTitle,
+          this.totalTasks,
+          score.correctCount,
+          score.percentage,
+          this._completedAt
+        )
+      );
     }
   }
 

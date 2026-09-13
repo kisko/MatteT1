@@ -79,4 +79,34 @@ describe('QuizSession Aggregate', () => {
     expect(topicScores.find((score) => score.topic === Lk20Topic1T.LIGNINGER_OG_ULIKHETER)?.percentage).toBe(100);
     expect(topicScores.find((score) => score.topic === Lk20Topic1T.TALL_OG_ALGEBRA)?.percentage).toBe(0);
   });
+
+  it('skal kunne gå videre til neste oppgave og avvise svar etter fullføring', () => {
+    const secondTask = Task.create({
+      title: Title.create('Oppgave 2').value,
+      description: LatexDescription.create('$x + 2 = 5$').value,
+      difficulty: Difficulty.create(DifficultyLevel.LETT).value,
+      category: Lk20Category.create(Lk20Topic1T.TALL_OG_ALGEBRA).value,
+      solutionSteps: [SolutionStep.create(1, 'Trekk fra 2', 'x = 3').value],
+      correctAnswer: { type: 'numeric', value: 3 },
+    }).value;
+    const session = QuizSession.create([task1, secondTask], 'Blandet').value;
+
+    expect(session.nextTask()).toBe(true);
+    expect(session.currentIndex).toBe(1);
+    expect(session.submitAnswer(StudentAnswer.create({ type: 'numeric', value: 3 }).value).isSuccess).toBe(true);
+    expect(session.nextTask()).toBe(false);
+    expect(session.completedAt).toBeInstanceOf(Date);
+    expect(session.submitAnswer(StudentAnswer.create({ type: 'numeric', value: 3 }).value).isFailure).toBe(true);
+  });
+
+  it('skal avvise tomt svar og gjøre complete idempotent', () => {
+    const session = QuizSession.create([task1], 'Ligninger').value;
+
+    const result = session.submitAnswer(undefined as never);
+    expect(result.isFailure).toBe(true);
+    session.complete();
+    const completedAt = session.completedAt;
+    session.complete();
+    expect(session.completedAt).toBe(completedAt);
+  });
 });

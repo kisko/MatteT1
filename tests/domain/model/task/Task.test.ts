@@ -105,4 +105,46 @@ describe('Task Aggregate Root', () => {
     const correctTextAnswer = StudentAnswer.create({ type: 'text', text: 'toppunkt' }).value;
     expect(textTask.evaluate(correctTextAnswer).value.isCorrect).toBe(true);
   });
+
+  it('skal gi feil resultat for alle støttede feil svar', () => {
+    const numericTask = Task.create({
+      title,
+      description,
+      difficulty,
+      category,
+      solutionSteps: [step],
+      correctAnswer: { type: 'numeric', value: 4 },
+    }).value;
+    expect(numericTask.evaluate(StudentAnswer.create({ type: 'numeric', value: 5 }).value).value.isCorrect).toBe(false);
+
+    const mcTask = Task.create({
+      title,
+      description,
+      difficulty,
+      category,
+      solutionSteps: [step],
+      correctAnswer: { type: 'multipleChoice', selectedOptionIndex: 1 },
+    }).value;
+    expect(mcTask.evaluate(StudentAnswer.create({ type: 'multipleChoice', selectedOptionIndex: 0 }).value).value.isCorrect).toBe(false);
+
+    const exprTask = Task.create({
+      title,
+      description,
+      difficulty,
+      category,
+      solutionSteps: [step],
+      correctAnswer: { type: 'expression', latex: 'x + 2' },
+    }).value;
+    expect(exprTask.evaluate(StudentAnswer.create({ type: 'expression', latex: 'x + 3' }).value).value.isCorrect).toBe(false);
+
+    const textTask = Task.create({
+      title,
+      description,
+      difficulty,
+      category,
+      solutionSteps: [step],
+      correctAnswer: { type: 'text', text: 'Toppunkt' },
+    }).value;
+    expect(textTask.evaluate(StudentAnswer.create({ type: 'text', text: 'Bunnpunkt' }).value).value.isCorrect).toBe(false);
+  });
 });

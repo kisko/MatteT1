@@ -1,5 +1,5 @@
-import React, { lazy, Suspense, useState, useEffect } from 'react';
-import { Lk20Topic1T } from './domain/model/task/value-objects/Lk20Category.js';
+import React, { lazy, Suspense, useState, useEffect, useCallback } from 'react';
+import { Lk20Topic1T, Lk20TopicNames } from './domain/model/task/value-objects/Lk20Category.js';
 import { UserProgress } from './domain/model/progress/UserProgress.js';
 import { QuizSession } from './domain/model/quiz/QuizSession.js';
 import { AnswerValue } from './domain/model/task/value-objects/StudentAnswer.js';
@@ -12,6 +12,10 @@ import { Navbar } from './ui/components/Navbar.js';
 import { DashboardView } from './ui/views/DashboardView.js';
 import { CompetenceMatrixView } from './ui/views/CompetenceMatrixView.js';
 import { Task } from './domain/model/task/Task.js';
+import { DomainEventPublisher } from './domain/events/DomainEventPublisher.js';
+import { ProgressUpdatedDomainEvent } from './domain/events/ProgressUpdatedDomainEvent.js';
+import { QuizCompletedDomainEvent } from './domain/events/QuizCompletedDomainEvent.js';
+import { ToastContainer, ToastMessage } from './ui/components/Toast.js';
 
 const QuizView = lazy(() => import('./ui/views/QuizView.js').then((module) => ({ default: module.QuizView })));
 const LectureView = lazy(() => import('./ui/views/LectureView.js').then((module) => ({ default: module.LectureView })));
@@ -26,8 +30,61 @@ export const App: React.FC = () => {
   const [progress, setProgress] = useState<UserProgress>(UserProgress.createEmpty());
   const [activeSession, setActiveSession] = useState<QuizSession | null>(null);
   const [activeTopic, setActiveTopic] = useState<Lk20Topic1T | null>(null);
-    const [taskCatalog, setTaskCatalog] = useState<readonly Task[]>([]);
+  const [taskCatalog, setTaskCatalog] = useState<readonly Task[]>([]);
   const [isDark, setIsDark] = useState<boolean>(true);
+  const [toasts, setToasts] = useState<ToastMessage[]>([]);
+
+  const addToast = useCallback((toast: Omit<ToastMessage, 'id'>) => {
+    const id = crypto.randomUUID();
+    setToasts((prev) => [...prev.slice(-3), { ...toast, id }]);
+  }, []);
+
+  const dismissToast = useCallback((id: string) => {
+    setToasts((prev) => prev.filter((t) => t.id !== id));
+  }, []);
+
+  // Abonner på domenehendelser (Domain Events)
+  useEffect(() => {
+    const publisher = DomainEventPublisher.getInstance();
+
+    const unsubProgress = publisher.subscribe<ProgressUpdatedDomainEvent>(
+      'ProgressUpdatedDomainEvent',
+      (event) => {
+        if (event.isCorrect && (event.newMasteryPercentage === 100 || event.newMasteryPercentage === 80)) {
+          const topicName = Lk20TopicNames[event.topic] ?? event.topic;
+          addToast({
+            type: 'milestone',
+            title: `Mestrings-milepæl! 🎯`,
+            description: `Du har nådd ${event.newMasteryPercentage} % mestring i ${topicName}!`,
+          });
+        }
+      }
+    );
+
+    const unsubQuiz = publisher.subscribe<QuizCompletedDomainEvent>(
+      'QuizCompletedDomainEvent',
+      (event) => {
+        if (event.scorePercentage >= 80) {
+          addToast({
+            type: 'success',
+            title: 'Quiz fullført med glans! 🏆',
+            description: `${event.topicTitle}: ${event.correctCount} av ${event.totalTasks} riktige (${event.scorePercentage} %).`,
+          });
+        } else {
+          addToast({
+            type: 'info',
+            title: 'Quiz fullført! 👍',
+            description: `${event.topicTitle}: ${event.correctCount} av ${event.totalTasks} riktige (${event.scorePercentage} %).`,
+          });
+        }
+      }
+    );
+
+    return () => {
+      unsubProgress();
+      unsubQuiz();
+    };
+  }, [addToast]);
 
   // Last inn progresjon og tema ved oppstart
   useEffect(() => {
@@ -186,6 +243,8 @@ export const App: React.FC = () => {
       <footer className="mx-auto max-w-7xl px-4 py-8 text-center text-xs text-slate-500 sm:px-6 lg:px-8">
         Laget av Kjell Inge Skjønberg
       </footer>
+
+      <ToastContainer toasts={toasts} onDismiss={dismissToast} />
     </div>
   );
 };

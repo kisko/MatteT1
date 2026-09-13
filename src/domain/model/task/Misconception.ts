@@ -5,6 +5,7 @@ export enum MisconceptionType {
   FRACTION_ADDITION = 'FRACTION_ADDITION',       // La sammen tellere og nevnere direkte
   EXPONENT_RULE_ERROR = 'EXPONENT_RULE',         // Feil potensregel (x^a * x^b = x^(a*b))
   DERIVATIVE_POWER_RULE = 'DERIVATIVE_POWER_RULE',// Feil ved derivasjon av x^n
+  LOGARITHM_RULE_ERROR = 'LOGARITHM_RULE_ERROR', // Feil ved logaritmeregler lg(a*b) / lg(a+b)
   NONE = 'NONE',
 }
 

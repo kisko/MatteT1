@@ -4,6 +4,8 @@ import { StudentAnswer, AnswerValue } from '../../domain/model/task/value-object
 import { TaskEvaluatorService, ExtendedEvaluationResult } from '../../domain/services/TaskEvaluatorService.js';
 import { ProgressRepositoryPort } from '../ports/ProgressRepositoryPort.js';
 import { createTaskError, TaskError } from '../../domain/model/task/errors/TaskError.js';
+import { DomainEventPublisher } from '../../domain/events/DomainEventPublisher.js';
+import { ProgressUpdatedDomainEvent } from '../../domain/events/ProgressUpdatedDomainEvent.js';
 
 export interface SubmitAnswerDTO {
   session: QuizSession;
@@ -54,6 +56,23 @@ export class SubmitAnswerUseCase {
       task.category.subCompetenceGoal
     );
     await this.progressRepository.saveProgress(updatedProgress);
+
+    // Publiser domenehendelser fra sesjon og progresjon
+    const publisher = DomainEventPublisher.getInstance();
+    await publisher.publishAll(dto.session.domainEvents);
+    dto.session.clearDomainEvents();
+
+    const topicStats = updatedProgress.categoryStats.get(task.category.mainTopic);
+    await publisher.publish(
+      new ProgressUpdatedDomainEvent(
+        task.category.mainTopic,
+        evalAnalysisResult.value.result.isCorrect,
+        topicStats?.masteryPercentage ?? 0,
+        updatedProgress.totalSolved,
+        updatedProgress.streakDays,
+        task.category.subCompetenceGoal
+      )
+    );
 
     return evalAnalysisResult;
   }

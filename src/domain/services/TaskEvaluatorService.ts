@@ -1,4 +1,5 @@
 import { Result } from '../shared/Result.js';
+import { Task } from '../model/task/Task.js';
 import { StudentAnswer, AnswerValue } from '../model/task/value-objects/StudentAnswer.js';
 import { EvaluationResult } from '../model/task/value-objects/EvaluationResult.js';
 import { TaskError } from '../model/task/errors/TaskError.js';
@@ -131,9 +132,9 @@ export class TaskEvaluatorService {
       }
     }
 
-    // Sjekk om kunden svarte kun x = 2 på x^2 = 4 (mangler -2)
+    // Sjekk om eleven svarte kun x = c på x^2 = c (mangler \pm eller negativ rot)
     if (
-      (normExp.includes('\\pm') || normExp.includes('x=\\pm') || normExp.includes('2')) &&
+      (normExp.includes('\\pm') || normExp.includes('x=\\pm') || normExp.includes('x=\\pm\\sqrt')) &&
       !normSub.includes('\\pm') &&
       !normSub.includes('-')
     ) {
@@ -145,9 +146,48 @@ export class TaskEvaluatorService {
       );
     }
 
+    // Sjekk for potensregelfeil (x^a * x^b = x^(a*b))
+    if (
+      (normSub.includes('x^6') && normExp.includes('x^5')) ||
+      (normSub.includes('a^6') && normExp.includes('a^5')) ||
+      (normSub.includes('x^8') && normExp.includes('x^6'))
+    ) {
+      return createMisconception(
+        MisconceptionType.EXPONENT_RULE_ERROR,
+        'Feil potensregel',
+        'Når du multipliserer potenser med samme grunntall skal du addere eksponentene: $a^m \\cdot a^n = a^{m+n}$.',
+        'Ikke multipliser eksponentene når grunntallene ganges sammen! Eksponentene skal legges sammen.'
+      );
+    }
+
+    // Sjekk for derivasjon av potens (glemte koeffisient n eller trakk ikke fra 1)
+    if (
+      (normExp.includes('3x^2') && normSub.includes('x^2')) ||
+      (normExp.includes('2x') && normSub.includes('x')) ||
+      (normExp.includes('4x^3') && normSub.includes('x^3'))
+    ) {
+      return createMisconception(
+        MisconceptionType.DERIVATIVE_POWER_RULE,
+        'Potensregel for derivasjon',
+        'Husk potensregelen ved derivasjon: $(x^n)\\prime = n \\cdot x^{n-1}$.',
+        'Du må multiplisere med den opprinnelige eksponenten foran x-leddet!'
+      );
+    }
+
+    // Sjekk for logaritmeregel-feil
+    if (
+      (normSub.includes('\\lg(a)\\cdot\\lg(b)') || normSub.includes('\\lg(a)\\lg(b)')) &&
+      normExp.includes('\\lg(a)+\\lg(b)')
+    ) {
+      return createMisconception(
+        MisconceptionType.LOGARITHM_RULE_ERROR,
+        'Logaritme for produkt',
+        'Logaritmen til et produkt er summen av logaritmene: $\\lg(a \\cdot b) = \\lg(a) + \\lg(b)$.',
+        'Ikke gang logaritmene sammen; legg dem sammen!'
+      );
+    }
+
     return undefined;
   }
 }
 
-// Importer Task for å bruke defaultEvaluator som fallback
-import { Task } from '../model/task/Task.js';

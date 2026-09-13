@@ -16,4 +16,30 @@ describe('UserProgress', () => {
     expect(stat?.masteryPercentage).toBe(100);
     expect(updated.goalStats.get('Nullpunkter')?.masteryPercentage).toBe(100);
   });
+
+  it('skal beholde progresjon ved feil svar uten kompetansemål', () => {
+    const progress = UserProgress.createEmpty();
+    const updated = progress.recordAttempt(Lk20Topic1T.FUNKSJONER, false);
+
+    expect(updated.totalSolved).toBe(0);
+    expect(updated.categoryStats.get(Lk20Topic1T.FUNKSJONER)?.masteryPercentage).toBe(0);
+    expect(updated.goalStats.size).toBe(0);
+  });
+
+  it('skal øke streak for aktivitet påfølgende dag', () => {
+    const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+    const progress = UserProgress.fromData(new Map(), 2, 3, yesterday);
+
+    const updated = progress.recordAttempt(Lk20Topic1T.TALL_OG_ALGEBRA, true);
+
+    expect(updated.streakDays).toBe(4);
+  });
+
+  it('skal starte streak på nytt etter et opphold', () => {
+    const progress = UserProgress.fromData(new Map(), 2, 3, '2020-01-01');
+
+    const updated = progress.recordAttempt(Lk20Topic1T.TALL_OG_ALGEBRA, true);
+
+    expect(updated.streakDays).toBe(1);
+  });
 });

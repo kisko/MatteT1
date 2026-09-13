@@ -1,6 +1,8 @@
-import { UserProgress } from '../../domain/model/progress/UserProgress.js';
+import { ProgressRepository } from '../../domain/model/progress/ProgressRepository.js';
 
-export interface ProgressRepositoryPort {
-  getProgress(): Promise<UserProgress>;
-  saveProgress(progress: UserProgress): Promise<void>;
-}
+/**
+ * ProgressRepositoryPort er applikasjonslagets port for progresjon,
+ * forankret i domenekontrakten ProgressRepository.
+ */
+export interface ProgressRepositoryPort extends ProgressRepository {}
+

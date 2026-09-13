@@ -51,6 +51,42 @@ describe('TaskEvaluatorService', () => {
     }
   });
 
+  it('skal oppdage potensregelfeil (x^2 * x^3 = x^6 i stedet for x^5)', () => {
+    const expected = { type: 'expression' as const, latex: 'x^5' };
+    const answer = StudentAnswer.create({ type: 'expression', latex: 'x^6' }).value;
+
+    const res = TaskEvaluatorService.evaluateWithAnalysis(expected, answer);
+    expect(res.isSuccess).toBe(true);
+    if (res.isSuccess) {
+      expect(res.value.result.isCorrect).toBe(false);
+      expect(res.value.misconception?.type).toBe(MisconceptionType.EXPONENT_RULE_ERROR);
+    }
+  });
+
+  it('skal oppdage manglende koeffisient ved derivasjon av potens', () => {
+    const expected = { type: 'expression' as const, latex: '3x^2' };
+    const answer = StudentAnswer.create({ type: 'expression', latex: 'x^2' }).value;
+
+    const res = TaskEvaluatorService.evaluateWithAnalysis(expected, answer);
+    expect(res.isSuccess).toBe(true);
+    if (res.isSuccess) {
+      expect(res.value.result.isCorrect).toBe(false);
+      expect(res.value.misconception?.type).toBe(MisconceptionType.DERIVATIVE_POWER_RULE);
+    }
+  });
+
+  it('skal oppdage logaritmeregel-feil for produkt', () => {
+    const expected = { type: 'expression' as const, latex: '\\lg(a) + \\lg(b)' };
+    const answer = StudentAnswer.create({ type: 'expression', latex: '\\lg(a) \\cdot \\lg(b)' }).value;
+
+    const res = TaskEvaluatorService.evaluateWithAnalysis(expected, answer);
+    expect(res.isSuccess).toBe(true);
+    if (res.isSuccess) {
+      expect(res.value.result.isCorrect).toBe(false);
+      expect(res.value.misconception?.type).toBe(MisconceptionType.LOGARITHM_RULE_ERROR);
+    }
+  });
+
   it('skal avvise feil type svar med forklaring', () => {
     const expected = { type: 'numeric' as const, value: 10 };
     const answer = StudentAnswer.create({ type: 'expression', latex: 'x+1' }).value;

@@ -76,4 +76,38 @@ describe('StartQuizUseCase', () => {
       expect(result.value.timeLimitSeconds).toBe(90 * 60);
     }
   });
+
+  it('skal returnere feil når temaet ikke har oppgaver', async () => {
+    const emptyRepository = {
+      getByTopic: async () => [],
+      getByCompetenceGoal: async () => [],
+    } as unknown as InMemoryTaskRepository;
+    const useCase = new StartQuizUseCase(emptyRepository);
+
+    const result = await useCase.execute(Lk20Topic1T.FUNKSJONER);
+
+    expect(result.isFailure).toBe(true);
+  });
+
+  it('skal returnere feil når kompetansemål ikke gir oppgaver i temaet', async () => {
+    const repository = {
+      getByCompetenceGoal: async () => [],
+    } as unknown as InMemoryTaskRepository;
+    const useCase = new StartQuizUseCase(repository);
+
+    const result = await useCase.executeGoal(Lk20Topic1T.FUNKSJONER, ['Ukjent mål']);
+
+    expect(result.isFailure).toBe(true);
+  });
+
+  it('skal returnere feil når eksamensrepositoryet er tomt', async () => {
+    const emptyRepository = {
+      getByTopic: async () => [],
+    } as unknown as InMemoryTaskRepository;
+    const useCase = new StartQuizUseCase(emptyRepository);
+
+    const result = await useCase.executeExam(12);
+
+    expect(result.isFailure).toBe(true);
+  });
 });

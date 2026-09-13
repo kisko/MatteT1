@@ -721,5 +721,83 @@ export class InMemoryTaskRepository implements TaskRepositoryPort {
       solutionSteps: [unwrap(SolutionStep.create(1, 'Velg plasseringen', 'Den ene suksessen kan komme på ${4\\choose1}$ måter.', '${4\\choose1}=4')), unwrap(SolutionStep.create(2, 'Tell utfallene', 'For hver plassering er de tre andre forsøkene fiasko.', '$4$ utfall'))],
       correctAnswer: { type: 'numeric', value: 4 },
     });
+
+    // Ekstra oppgaver for rik LK20-dekning
+    addTask({
+      id: unwrap(TaskId.create('task-alg-8')),
+      title: unwrap(Title.create('Briggsk logaritme')),
+      description: unwrap(LatexDescription.create('Regn ut verdien av $\\lg(1000)$.')),
+      difficulty: unwrap(Difficulty.create(DifficultyLevel.LETT)),
+      category: unwrap(Lk20Category.create(Lk20Topic1T.TALL_OG_ALGEBRA, 'Logaritmer')),
+      solutionSteps: [
+        unwrap(SolutionStep.create(1, 'Bruk definisjonen av tierlogaritmen', '$\\lg(10^x) = x$. Skriv $1000 = 10^3$.', '1000 = 10^3')),
+        unwrap(SolutionStep.create(2, 'Bestem logaritmen', '$\\lg(10^3) = 3$.', '3')),
+      ],
+      correctAnswer: { type: 'numeric', value: 3 },
+    });
+
+    addTask({
+      id: unwrap(TaskId.create('task-alg-9')),
+      title: unwrap(Title.create('Forenkle potensuttrykk')),
+      description: unwrap(LatexDescription.create('Forenkle uttrykket $\\frac{a^4 \\cdot a^3}{a^2}$.')),
+      difficulty: unwrap(Difficulty.create(DifficultyLevel.LETT)),
+      category: unwrap(Lk20Category.create(Lk20Topic1T.TALL_OG_ALGEBRA, 'Potensregler')),
+      solutionSteps: [
+        unwrap(SolutionStep.create(1, 'Bruk produktregelen for potenser', 'I telleren: $a^4 \\cdot a^3 = a^{4+3} = a^7$.', 'a^7')),
+        unwrap(SolutionStep.create(2, 'Bruk brøkregelen for potenser', '$\\frac{a^7}{a^2} = a^{7-2} = a^5$.', 'a^5')),
+      ],
+      correctAnswer: { type: 'expression', latex: 'a^5' },
+    });
+
+    addTask({
+      id: unwrap(TaskId.create('task-lig-7')),
+      title: unwrap(Title.create('Andregradsulikhet')),
+      description: unwrap(LatexDescription.create('Hvilken $x$-verdi er midtpunktet i løsningsintervallet for $(x-1)(x-5) \\le 0$?')),
+      difficulty: unwrap(Difficulty.create(DifficultyLevel.MIDDELS)),
+      category: unwrap(Lk20Category.create(Lk20Topic1T.LIGNINGER_OG_ULIKHETER, 'Ulikheter')),
+      solutionSteps: [
+        unwrap(SolutionStep.create(1, 'Finn nullpunktene', 'Nullpunktene er $x=1$ og $x=5$.', 'x=1,\\; x=5')),
+        unwrap(SolutionStep.create(2, 'Løs ulikheten og finn midtpunktet', 'Ulikheten er oppfylt for $x \\in [1, 5]$. Midtpunktet er $(1+5)/2 = 3$.', '3')),
+      ],
+      correctAnswer: { type: 'numeric', value: 3 },
+    });
+
+    addTask({
+      id: unwrap(TaskId.create('task-fun-7')),
+      title: unwrap(Title.create('Vertikal asymptote')),
+      description: unwrap(LatexDescription.create('Finn den vertikale tyr-asymptoten for $f(x) = \\frac{2x+3}{x-5}$. Oppgi tallet der nevneren blir null.')),
+      difficulty: unwrap(Difficulty.create(DifficultyLevel.LETT)),
+      category: unwrap(Lk20Category.create(Lk20Topic1T.FUNKSJONER, 'Rasjonale funksjoner')),
+      solutionSteps: [
+        unwrap(SolutionStep.create(1, 'Sett nevner lik null', 'En vertikal asymptote oppstår der nevneren er null: $x-5 = 0$.', 'x = 5')),
+      ],
+      correctAnswer: { type: 'numeric', value: 5 },
+    });
+
+    addTask({
+      id: unwrap(TaskId.create('task-der-7')),
+      title: unwrap(Title.create('Momentan stigning for tredjegradspolynom')),
+      description: unwrap(LatexDescription.create('For $f(x) = \\frac{1}{3}x^3 - 4x$, finn $f\\prime(3)$.')),
+      difficulty: unwrap(Difficulty.create(DifficultyLevel.MIDDELS)),
+      category: unwrap(Lk20Category.create(Lk20Topic1T.DERIVASJON_OG_VEKSTFART, 'Derivasjonsregler')),
+      solutionSteps: [
+        unwrap(SolutionStep.create(1, 'Deriver ledd for ledd', '$f\\prime(x) = \\frac{1}{3}(3x^2) - 4 = x^2 - 4$.', 'f\\prime(x) = x^2 - 4')),
+        unwrap(SolutionStep.create(2, 'Sett inn x=3', '$f\\prime(3) = 3^2 - 4 = 9 - 4 = 5$.', '5')),
+      ],
+      correctAnswer: { type: 'numeric', value: 5 },
+    });
+
+    addTask({
+      id: unwrap(TaskId.create('task-trig-7')),
+      title: unwrap(Title.create('Likebeint rettvinklet trekant')),
+      description: unwrap(LatexDescription.create('En likebeint rettvinklet trekant har kateter $4$ og $4$. Hva er hypotenusens lengde i eksakt form $a\\sqrt{b}$?')),
+      difficulty: unwrap(Difficulty.create(DifficultyLevel.MIDDELS)),
+      category: unwrap(Lk20Category.create(Lk20Topic1T.TRIGONOMETRI, 'Pytagoras')),
+      solutionSteps: [
+        unwrap(SolutionStep.create(1, 'Bruk Pytagoras', '$c^2 = 4^2 + 4^2 = 16 + 16 = 32$.', 'c = \\sqrt{32}')),
+        unwrap(SolutionStep.create(2, 'Forenkle kvadratroten', '$\\sqrt{32} = \\sqrt{16 \\cdot 2} = 4\\sqrt{2}$.', '4\\sqrt{2}')),
+      ],
+      correctAnswer: { type: 'expression', latex: '4\\sqrt{2}' },
+    });
   }
 }
