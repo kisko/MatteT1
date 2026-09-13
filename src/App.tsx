@@ -16,6 +16,7 @@ import { DomainEventPublisher } from './domain/events/DomainEventPublisher.js';
 import { ProgressUpdatedDomainEvent } from './domain/events/ProgressUpdatedDomainEvent.js';
 import { QuizCompletedDomainEvent } from './domain/events/QuizCompletedDomainEvent.js';
 import { ToastContainer, ToastMessage } from './ui/components/Toast.js';
+import { APP_VERSION } from './version.js';
 
 const QuizView = lazy(() => import('./ui/views/QuizView.js').then((module) => ({ default: module.QuizView })));
 const LectureView = lazy(() => import('./ui/views/LectureView.js').then((module) => ({ default: module.LectureView })));
@@ -241,7 +242,7 @@ export const App: React.FC = () => {
       </main>
 
       <footer className="mx-auto max-w-7xl px-4 py-8 text-center text-xs text-slate-500 sm:px-6 lg:px-8">
-        Laget av Kjell Inge Skjønberg
+        Laget av Kjell Inge Skjønberg · Versjon {APP_VERSION}
       </footer>
 
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />
