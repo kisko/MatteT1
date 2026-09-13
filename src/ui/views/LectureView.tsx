@@ -3,13 +3,16 @@ import {
   ArrowLeft,
   ArrowRight,
   CheckCircle2,
+  ExternalLink,
   Lightbulb,
   PlayCircle,
   Sparkles,
   SlidersHorizontal,
 } from 'lucide-react';
 import { Lk20Topic1T, Lk20TopicNames } from '../../domain/model/task/value-objects/Lk20Category.js';
+import { getCurriculumTopic, VideoResource } from '../../domain/curriculum/CompetenceMatrix.js';
 import { MathView } from '../MathView.js';
+import { VideoModal } from '../components/VideoModal.js';
 
 interface LectureSection {
   title: string;
@@ -791,6 +794,11 @@ const lectures: Record<Lk20Topic1T, LectureContent> = {
 
 export const LectureView: React.FC<LectureViewProps> = ({ topic, onBack, onStartPractice }) => {
   const lecture = lectures[topic];
+  const topicCurriculum = getCurriculumTopic(topic);
+  const topicVideos = topicCurriculum.goals.flatMap((g) =>
+    (g.videoResources ?? []).map((v) => ({ ...v, goalId: g.id, goalTitle: g.title }))
+  );
+  const [activeVideo, setActiveVideo] = useState<{ video: VideoResource; goalTitle: string; goalId: string } | null>(null);
   const [isCheckpointRevealed, setIsCheckpointRevealed] = useState(false);
   const [revealedMemoryTips, setRevealedMemoryTips] = useState<Record<string, boolean>>({});
   const [activeLesson, setActiveLesson] = useState(1);
@@ -896,12 +904,51 @@ export const LectureView: React.FC<LectureViewProps> = ({ topic, onBack, onStart
         </main>
 
         <aside className="lg:sticky lg:top-6 space-y-5">
+          {topicVideos.length > 0 && (
+            <section className="rounded-2xl border border-rose-500/30 bg-rose-950/20 p-5">
+              <div className="flex gap-2 items-center text-rose-300 font-bold mb-3">
+                <PlayCircle className="w-5 h-5 text-rose-400" />
+                <span>Videoforklaringer ({topicVideos.length})</span>
+              </div>
+              <p className="text-xs text-slate-300 mb-3">
+                Anbefalte videoer for temaet fra Lektor Thue, UDL og Lektor Dahl:
+              </p>
+              <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
+                {topicVideos.map((vid, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => setActiveVideo({ video: vid, goalTitle: vid.goalTitle, goalId: vid.goalId })}
+                    className="w-full text-left p-2.5 rounded-xl border border-rose-900/50 bg-slate-900/80 hover:bg-rose-950/40 hover:border-rose-700/60 transition-colors cursor-pointer group"
+                  >
+                    <div className="flex items-start justify-between gap-1.5">
+                      <span className="text-[10px] font-bold text-indigo-300 uppercase tracking-wider">{vid.goalId}</span>
+                      <span className="text-[10px] font-medium text-rose-300 bg-rose-950/60 border border-rose-900/60 px-1.5 py-0.5 rounded shrink-0">{vid.channel}</span>
+                    </div>
+                    <div className="mt-1 text-xs font-semibold text-slate-200 group-hover:text-white flex items-center justify-between gap-1">
+                      <span className="line-clamp-1">{vid.title}</span>
+                      <ExternalLink className="w-3 h-3 text-slate-500 group-hover:text-rose-300 shrink-0" />
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </section>
+          )}
+
           <section className="rounded-2xl border border-amber-400/30 bg-amber-950/20 p-5"><div className="flex gap-2 items-center text-amber-300 font-bold mb-3"><Lightbulb className="w-5 h-5" /> Dette må sitte</div><ul className="space-y-3 text-sm text-amber-100/80">{lecture.focus.map((item) => <li key={item} className="flex gap-2"><span className="text-amber-300">•</span>{item}</li>)}</ul></section>
           <section className="rounded-2xl border border-slate-700 bg-slate-900/80 p-5"><p className="text-xs uppercase tracking-widest text-slate-500 font-bold mb-2">Ta med videre</p><p className="text-sm text-slate-300 leading-relaxed">{lecture.nextStep}</p></section>
           <button onClick={onStartPractice} className="w-full flex items-center justify-center gap-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 px-4 py-3 text-white font-bold transition-colors shadow-lg shadow-indigo-950/50"><PlayCircle className="w-5 h-5" /> Test forståelsen</button>
           <div className="flex items-center justify-center gap-2 text-xs text-slate-500"><ArrowRight className="w-3 h-3" /> Oppgaver med veiledende hint</div>
         </aside>
       </div>
+
+      <VideoModal
+        isOpen={activeVideo !== null}
+        onClose={() => setActiveVideo(null)}
+        video={activeVideo?.video ?? null}
+        goalTitle={activeVideo?.goalTitle}
+        goalId={activeVideo?.goalId}
+      />
     </div>
   );
 };
