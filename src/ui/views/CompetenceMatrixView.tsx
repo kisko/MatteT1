@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { COMPETENCE_MATRIX } from '../../domain/curriculum/CompetenceMatrix.js';
+import { COMPETENCE_MATRIX, VideoResource } from '../../domain/curriculum/CompetenceMatrix.js';
 import { Lk20Topic1T } from '../../domain/model/task/value-objects/Lk20Category.js';
 import { UserProgress } from '../../domain/model/progress/UserProgress.js';
 import { Task } from '../../domain/model/task/Task.js';
-import { ArrowRight, BookOpen, Crosshair, TableProperties } from 'lucide-react';
+import { ArrowRight, BookOpen, Crosshair, ExternalLink, PlayCircle, TableProperties } from 'lucide-react';
+import { VideoModal } from '../components/VideoModal.js';
 
 interface CompetenceMatrixViewProps {
   progress: UserProgress;
@@ -19,6 +20,8 @@ export const CompetenceMatrixView: React.FC<CompetenceMatrixViewProps> = ({
   onStartGoal,
 }) => {
   const [selectedTopic, setSelectedTopic] = useState<Lk20Topic1T | 'all'>('all');
+  const [activeVideo, setActiveVideo] = useState<{ video: VideoResource; goalTitle: string; goalId: string } | null>(null);
+
   const visibleTopics = selectedTopic === 'all'
     ? COMPETENCE_MATRIX
     : COMPETENCE_MATRIX.filter((definition) => definition.topic === selectedTopic);
@@ -75,6 +78,23 @@ export const CompetenceMatrixView: React.FC<CompetenceMatrixViewProps> = ({
                       </div>
                       <h3 className="mt-2 text-sm sm:text-base font-bold text-slate-100">{goal.title}</h3>
                       <p className="mt-1.5 text-xs leading-relaxed text-slate-400">{goal.description}</p>
+                      {goal.videoResources && goal.videoResources.length > 0 && (
+                        <div className="mt-3 flex flex-wrap gap-1.5 pt-2 border-t border-slate-800/80">
+                          {goal.videoResources.map((vid, idx) => (
+                            <button
+                              key={idx}
+                              type="button"
+                              onClick={() => setActiveVideo({ video: vid, goalTitle: goal.title, goalId: goal.id })}
+                              title={`${vid.title} (${vid.channel})`}
+                              className="inline-flex items-center gap-1 text-[11px] font-medium text-rose-300 hover:text-rose-200 bg-rose-950/40 hover:bg-rose-900/50 border border-rose-800/40 px-2 py-0.5 rounded-md transition-colors cursor-pointer"
+                            >
+                              <PlayCircle className="h-3 w-3 text-rose-400 shrink-0" />
+                              <span className="truncate max-w-[140px]">{vid.channel}</span>
+                              <ExternalLink className="h-2.5 w-2.5 opacity-70 shrink-0" />
+                            </button>
+                          ))}
+                        </div>
+                      )}
                       <div className="mt-auto pt-4">
                         <div className="mb-2.5 flex items-center justify-between text-[11px] text-slate-500"><span>{availableTasks}/{goal.targetTasks} oppgaver</span><span>{attempted} forsøk</span></div>
                         <button onClick={() => onStartGoal(definition.topic, goal.taskLabels)} className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-indigo-300 hover:text-indigo-200">
@@ -90,6 +110,14 @@ export const CompetenceMatrixView: React.FC<CompetenceMatrixViewProps> = ({
           );
         })}
       </div>
+
+      <VideoModal
+        isOpen={activeVideo !== null}
+        onClose={() => setActiveVideo(null)}
+        video={activeVideo?.video ?? null}
+        goalTitle={activeVideo?.goalTitle}
+        goalId={activeVideo?.goalId}
+      />
     </div>
   );
 };
