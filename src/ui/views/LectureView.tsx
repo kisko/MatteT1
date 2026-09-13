@@ -659,7 +659,7 @@ const InteractiveModule: React.FC<InteractiveModuleProps> = ({ topic }) => {
         <div className="rounded-xl border border-violet-300/30 bg-slate-950/70 p-5 text-center">
           <p className="text-xs uppercase tracking-widest text-slate-400 mb-3">Hva skjer?</p>
           <InteractiveVisual topic={topic} primary={primary} secondary={secondary} tertiary={tertiary} fourth={fourth} functionType={functionType} fineGrid={fineGrid} />
-          <div className="text-lg sm:text-2xl font-bold text-violet-100 break-words"><MathView latex={`$${configuration.formula}$`} /></div>
+          <div className="text-lg sm:text-2xl font-bold text-violet-100 break-words"><MathView latex={configuration.formula} displayMode={true} /></div>
           <p className="text-xs text-slate-400 mt-4">{configuration.insight}</p>
         </div>
       </div>
@@ -844,25 +844,34 @@ export const LectureView: React.FC<LectureViewProps> = ({ topic, onBack, onStart
 
       <div className="grid lg:grid-cols-[1fr_300px] gap-8 items-start">
         <main className="space-y-6">
-          {!isPracticalLesson && lecture.sections.slice(lessonStartIndex, lessonStartIndex + 2).map((section, index) => (
-            <section key={section.title} className="rounded-2xl border border-slate-700/80 bg-slate-900/70 p-6 sm:p-8">
-              <div className="flex gap-4 mb-5"><span className="flex-none w-8 h-8 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-400/40 flex items-center justify-center font-bold">{lessonStartIndex + index + 1}</span><div><h2 className="text-xl sm:text-2xl font-bold text-white">{section.title}</h2><div className="text-slate-300 leading-relaxed mt-2"><MathView latex={section.explanation} /></div></div></div>
-              {topic === Lk20Topic1T.TRIGONOMETRI && section.title === 'Vinkelmål og rettvinklet trekant' && <TriangleRatiosVisual />}
-              {topic === Lk20Topic1T.TRIGONOMETRI && section.title === 'Sinussetningen gjelder alle trekanter' && <TriangleLawVisual law="sine" />}
-              {topic === Lk20Topic1T.TRIGONOMETRI && section.title === 'Cosinussetningen finner manglende sider og vinkler' && <TriangleLawVisual law="cosine" />}
-              {topic === Lk20Topic1T.TRIGONOMETRI && section.title === 'Arealsetningen finner trekantareal' && <TriangleLawVisual law="area" />}
-              <div className="rounded-xl bg-slate-950 border border-indigo-400/20 px-4 py-3 mb-5 overflow-x-auto"><MathView latex={section.formula} displayMode /></div>
-              {section.code && <pre className="rounded-xl bg-slate-950 border border-sky-400/20 px-4 py-4 mb-5 overflow-x-auto text-sm leading-relaxed text-sky-200"><code>{section.code}</code></pre>}
-              <ul className="space-y-3 text-sm text-slate-300">{section.breakdown.map((item) => <li key={item} className="flex gap-3"><CheckCircle2 className="w-4 h-4 flex-none text-emerald-400 mt-0.5" /><MathView latex={item} /></li>)}</ul>
-              <div className="mt-6 rounded-xl border border-amber-400/25 bg-amber-950/20 p-4">
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                  <p className="text-xs uppercase tracking-widest text-amber-300 font-bold">Hent frem fra hukommelsen</p>
-                  <button onClick={() => setRevealedMemoryTips((current) => ({ ...current, [section.title]: !current[section.title] }))} className="rounded-lg border border-amber-300/30 bg-amber-400/10 px-3 py-1.5 text-xs font-semibold text-amber-200 hover:bg-amber-400/20">{revealedMemoryTips[section.title] ? 'Skjul huskeregel' : 'Vis huskeregel'}</button>
-                </div>
-                {revealedMemoryTips[section.title] ? <p className="text-sm text-amber-100 mt-3 leading-relaxed">{getMemoryTip(section.title)}</p> : <p className="text-sm text-slate-400 mt-3">Prøv å si regelen med egne ord før du viser huskeregelen.</p>}
-              </div>
-            </section>
-          ))}
+          {!isPracticalLesson && <details open className="group rounded-2xl border border-indigo-400/30 bg-indigo-950/10">
+            <summary className="cursor-pointer list-none p-5 sm:p-6 text-lg sm:text-xl font-bold text-white marker:hidden">
+              <span className="mr-3 text-indigo-300 group-open:rotate-90 inline-block transition-transform">›</span>
+              Teori og begreper
+              <span className="ml-3 text-xs font-normal text-slate-400">Forklaring, formel og huskeregel</span>
+            </summary>
+            <div className="space-y-6 border-t border-indigo-400/20 p-4 sm:p-6">
+              {lecture.sections.slice(lessonStartIndex, lessonStartIndex + 2).map((section, index) => (
+                <section key={section.title} className="rounded-2xl border border-slate-700/80 bg-slate-900/70 p-6 sm:p-8">
+                  <div className="flex gap-4 mb-5"><span className="flex-none w-8 h-8 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-400/40 flex items-center justify-center font-bold">{lessonStartIndex + index + 1}</span><div><h2 className="text-xl sm:text-2xl font-bold text-white">{section.title}</h2><div className="text-slate-300 leading-relaxed mt-2"><MathView latex={section.explanation} /></div></div></div>
+                  {topic === Lk20Topic1T.TRIGONOMETRI && section.title === 'Vinkelmål og rettvinklet trekant' && <TriangleRatiosVisual />}
+                  {topic === Lk20Topic1T.TRIGONOMETRI && section.title === 'Sinussetningen gjelder alle trekanter' && <TriangleLawVisual law="sine" />}
+                  {topic === Lk20Topic1T.TRIGONOMETRI && section.title === 'Cosinussetningen finner manglende sider og vinkler' && <TriangleLawVisual law="cosine" />}
+                  {topic === Lk20Topic1T.TRIGONOMETRI && section.title === 'Arealsetningen finner trekantareal' && <TriangleLawVisual law="area" />}
+                  <div className="rounded-xl bg-slate-950 border border-indigo-400/20 px-4 py-3 mb-5 overflow-x-auto"><MathView latex={section.formula} displayMode /></div>
+                  {section.code && <pre className="rounded-xl bg-slate-950 border border-sky-400/20 px-4 py-4 mb-5 overflow-x-auto text-sm leading-relaxed text-sky-200"><code>{section.code}</code></pre>}
+                  <ul className="space-y-3 text-sm text-slate-300">{section.breakdown.map((item) => <li key={item} className="flex gap-3"><CheckCircle2 className="w-4 h-4 flex-none text-emerald-400 mt-0.5" /><MathView latex={item} /></li>)}</ul>
+                  <div className="mt-6 rounded-xl border border-amber-400/25 bg-amber-950/20 p-4">
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <p className="text-xs uppercase tracking-widest text-amber-300 font-bold">Hent frem fra hukommelsen</p>
+                      <button onClick={() => setRevealedMemoryTips((current) => ({ ...current, [section.title]: !current[section.title] }))} className="rounded-lg border border-amber-300/30 bg-amber-400/10 px-3 py-1.5 text-xs font-semibold text-amber-200 hover:bg-amber-400/20">{revealedMemoryTips[section.title] ? 'Skjul huskeregel' : 'Vis huskeregel'}</button>
+                    </div>
+                    {revealedMemoryTips[section.title] ? <p className="text-sm text-amber-100 mt-3 leading-relaxed">{getMemoryTip(section.title)}</p> : <p className="text-sm text-slate-400 mt-3">Prøv å si regelen med egne ord før du viser huskeregelen.</p>}
+                  </div>
+                </section>
+              ))}
+            </div>
+          </details>}
           {!isPracticalLesson && activeLesson === conceptLessonCount && <section className="rounded-2xl border border-emerald-400/30 bg-emerald-950/20 p-6 sm:p-8">
             <p className="text-xs uppercase tracking-widest text-emerald-300 font-bold mb-3">Prøv selv før du går videre</p>
             <h2 className="text-xl font-bold text-white mb-4"><MathView latex={lecture.checkpoint.question} /></h2>

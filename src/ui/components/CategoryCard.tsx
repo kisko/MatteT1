@@ -6,6 +6,7 @@ import { ArrowRight, Calculator, Equal, FunctionSquare, TrendingUp, PieChart, Tr
 interface CategoryCardProps {
   topic: Lk20Topic1T;
   mastery: CategoryMastery;
+  totalAvailableTasks?: number;
   onStart: (topic: Lk20Topic1T) => void;
 }
 
@@ -53,6 +54,7 @@ const topicDetails: Record<
 export const CategoryCard: React.FC<CategoryCardProps> = ({
   topic,
   mastery,
+  totalAvailableTasks,
   onStart,
 }) => {
   const details = topicDetails[topic];
@@ -87,7 +89,11 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
           <div className="flex justify-between text-xs text-slate-400 mb-1">
             <span>Mestringsnivå</span>
             <span>
-              {mastery.tasksCorrect} av {mastery.tasksAttempted} løst riktig
+              {mastery.tasksAttempted === 0 ? (
+                `Ikke prøvd ennå${totalAvailableTasks !== undefined ? ` (${totalAvailableTasks} oppgaver)` : ''}`
+              ) : (
+                `${mastery.tasksCorrect} av ${mastery.tasksAttempted} forsøk riktig`
+              )}
             </span>
           </div>
           <div className="w-full h-2 rounded-full bg-slate-900/80 overflow-hidden border border-slate-800">

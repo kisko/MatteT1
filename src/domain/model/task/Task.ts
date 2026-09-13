@@ -199,7 +199,12 @@ export class Task {
           .toLowerCase();
         const expectedText = expected.text.trim().toLowerCase();
 
-        if (submittedText === expectedText) {
+        const isMatch =
+          submittedText === expectedText ||
+          submittedText.includes(expectedText) ||
+          expectedText.includes(submittedText);
+
+        if (isMatch) {
           return Result.ok(EvaluationResult.correct('Riktig tekstsvar!'));
         } else {
           return Result.ok(EvaluationResult.incorrect('Svaret var dessverre ikke korrekt.'));

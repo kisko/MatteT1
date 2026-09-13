@@ -20,11 +20,12 @@ export class HintGeneratorService {
     // Hint 2: Nærmere detalj om første steg
     if (task.solutionSteps.length > 0) {
       const step = task.solutionSteps[0];
+      const cleanFormula = step.formulaLatex?.replace(/^\$+|\$+$/g, '').trim();
       hints.push(
         Hint.create(
           2,
           `Steg 1: ${step.title}`,
-          `${step.latexExplanation} ${step.formulaLatex ? `\n$$${step.formulaLatex}$$` : ''}`
+          `${step.latexExplanation}${cleanFormula ? `\n\n$$${cleanFormula}$$` : ''}`
         )
       );
     }
@@ -32,11 +33,12 @@ export class HintGeneratorService {
     // Hint 3: Videre framgangsmåte
     if (task.solutionSteps.length > 1) {
       const step = task.solutionSteps[1];
+      const cleanFormula = step.formulaLatex?.replace(/^\$+|\$+$/g, '').trim();
       hints.push(
         Hint.create(
           3,
           `Steg 2: ${step.title}`,
-          `${step.latexExplanation} ${step.formulaLatex ? `\n$$${step.formulaLatex}$$` : ''}`
+          `${step.latexExplanation}${cleanFormula ? `\n\n$$${cleanFormula}$$` : ''}`
         )
       );
     }

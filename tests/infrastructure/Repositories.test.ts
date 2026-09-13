@@ -6,6 +6,7 @@ import { Lk20Topic1T } from '../../src/domain/model/task/value-objects/Lk20Categ
 import { UserProgress } from '../../src/domain/model/progress/UserProgress.js';
 import { StudentAnswer } from '../../src/domain/model/task/value-objects/StudentAnswer.js';
 import { MisconceptionType } from '../../src/domain/model/task/Misconception.js';
+import { TaskEvaluatorService } from '../../src/domain/services/TaskEvaluatorService.js';
 
 describe('Infrastructure Repositories', () => {
   it('InMemoryTaskRepository skal hente oppgaver etter id, tema og alle', async () => {
@@ -36,7 +37,7 @@ describe('Infrastructure Repositories', () => {
     }
   });
 
-  it('skal kunne evaluere fasiten til hver oppgave som korrekt', async () => {
+  it('skal kunne evaluere fasiten til hver oppgave som korrekt med Task og TaskEvaluatorService', async () => {
     const repo = new InMemoryTaskRepository();
     const tasks = await repo.getAll();
 
@@ -49,6 +50,18 @@ describe('Infrastructure Repositories', () => {
         expect(evaluation.isSuccess, `${task.id.value} kunne ikke evalueres`).toBe(true);
         if (evaluation.isSuccess) {
           expect(evaluation.value.isCorrect, `${task.id.value} godtar ikke egen fasit`).toBe(true);
+        }
+
+        const evalWithAnalysis = TaskEvaluatorService.evaluateWithAnalysis(
+          task.correctAnswer,
+          answer.value
+        );
+        expect(evalWithAnalysis.isSuccess, `${task.id.value} feilet i evaluateWithAnalysis`).toBe(true);
+        if (evalWithAnalysis.isSuccess) {
+          expect(
+            evalWithAnalysis.value.result.isCorrect,
+            `${task.id.value} ('${task.title.value}') feilet evaluering i TaskEvaluatorService: ${evalWithAnalysis.value.result.feedbackLatex}`
+          ).toBe(true);
         }
       }
     }

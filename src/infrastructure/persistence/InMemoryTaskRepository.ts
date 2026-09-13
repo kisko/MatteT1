@@ -92,7 +92,7 @@ export class InMemoryTaskRepository implements TaskRepositoryPort {
           title: unwrap(Title.create('Forenkling av rasjonale uttrykk')),
           description: unwrap(
             LatexDescription.create(
-              'Forenkbrøken $\\frac{x^2 - 4}{x - 2}$ for $x \\neq 2$.'
+              'Forenkl brøken $\\frac{x^2 - 4}{x - 2}$ for $x \\neq 2$.'
             )
           ),
           difficulty: unwrap(Difficulty.create(DifficultyLevel.MIDDELS)),
@@ -186,10 +186,10 @@ export class InMemoryTaskRepository implements TaskRepositoryPort {
     addTask({
       id: unwrap(TaskId.create('task-lig-3')),
       title: unwrap(Title.create('Andregradsulikhet')),
-      description: unwrap(LatexDescription.create('Finn løsningene til $(x-2)(x+1)>0$. Oppgi minste heltallsløsning.')),
+      description: unwrap(LatexDescription.create('Finn løsningene til $(x-2)(x+1)>0$. Oppgi det største negative heltallet som passer i ulikheten.')),
       difficulty: unwrap(Difficulty.create(DifficultyLevel.KREVENDE)),
       category: unwrap(Lk20Category.create(Lk20Topic1T.LIGNINGER_OG_ULIKHETER, 'Fortegnsskjema')),
-      solutionSteps: [unwrap(SolutionStep.create(1, 'Lag fortegnsskjema', 'Nullpunktene er $-1$ og $2$. Produktet er positivt utenfor nullpunktene, så minste heltall er $-2$.', 'x<-1\\text{ eller }x>2'))],
+      solutionSteps: [unwrap(SolutionStep.create(1, 'Lag fortegnsskjema', 'Nullpunktene er $-1$ og $2$. Produktet er positivt for $x<-1$ og $x>2$. Det største negative heltallet som er en løsning er $-2$.', 'x<-1\\text{ eller }x>2'))],
       correctAnswer: { type: 'numeric', value: -2 },
     });
 
@@ -198,10 +198,10 @@ export class InMemoryTaskRepository implements TaskRepositoryPort {
       unwrap(
         Task.create({
           id: unwrap(TaskId.create('task-fun-1')),
-          title: unwrap(Title.create('Nullpunkter for polynomfunksjon')),
+          title: unwrap(Title.create('Nullpunkt for lineær funksjon')),
           description: unwrap(
             LatexDescription.create(
-              'Finn x-koordinaten til det største nullpunktet for funksjonen $f(x) = 2x - 8$.'
+              'Finn x-koordinaten til nullpunktet for funksjonen $f(x) = 2x - 8$.'
             )
           ),
           difficulty: unwrap(Difficulty.create(DifficultyLevel.LETT)),
@@ -421,7 +421,7 @@ export class InMemoryTaskRepository implements TaskRepositoryPort {
       description: unwrap(LatexDescription.create('En potensfunksjon har formen $f(x)=a\\cdot x^2$ og går gjennom punktet $(3,18)$. Finn $a$.')),
       difficulty: unwrap(Difficulty.create(DifficultyLevel.MIDDELS)),
       category: unwrap(Lk20Category.create(Lk20Topic1T.TALL_OG_ALGEBRA, 'Potensfunksjoner')),
-      solutionSteps: [unwrap(SolutionStep.create(1, 'Sett inn punktet', 'Punktet $(3,18)$ betyr at $f(3)=18$.', '$18=a\\cdot3^2$')), unwrap(SolutionStep.create(2, 'Isoler parameteren', 'Regn ut $3^2$ og del på 9.', '$a=2$'))],
+      solutionSteps: [unwrap(SolutionStep.create(1, 'Sett inn punktet', 'Punktet $(3,18)$ betyr at $f(3)=18$.', '18=a\\cdot3^2')), unwrap(SolutionStep.create(2, 'Isoler parameteren', 'Regn ut $3^2$ og del på 9.', 'a=2'))],
       correctAnswer: { type: 'numeric', value: 2 },
     });
     addTask({
@@ -430,7 +430,7 @@ export class InMemoryTaskRepository implements TaskRepositoryPort {
       description: unwrap(LatexDescription.create('For funksjonen $f(x)=\\frac{2x+1}{x-4}$: hvilken x-verdi er ikke tillatt?')),
       difficulty: unwrap(Difficulty.create(DifficultyLevel.LETT)),
       category: unwrap(Lk20Category.create(Lk20Topic1T.TALL_OG_ALGEBRA, 'Rasjonale funksjoner')),
-      solutionSteps: [unwrap(SolutionStep.create(1, 'Finn nevneren', 'Nevneren kan ikke være lik null.', '$x-4=0$')), unwrap(SolutionStep.create(2, 'Løs begrensningen', 'Legg til 4 på begge sider.', '$x=4$'))],
+      solutionSteps: [unwrap(SolutionStep.create(1, 'Finn nevneren', 'Nevneren kan ikke være lik null.', 'x-4=0')), unwrap(SolutionStep.create(2, 'Løs begrensningen', 'Legg til 4 på begge sider.', 'x=4'))],
       correctAnswer: { type: 'numeric', value: 4 },
     });
     addTask({
@@ -439,16 +439,16 @@ export class InMemoryTaskRepository implements TaskRepositoryPort {
       description: unwrap(LatexDescription.create('For hvilken verdi av $k$ har likningen $x^2-6x+k=0$ bare én reell løsning?')),
       difficulty: unwrap(Difficulty.create(DifficultyLevel.KREVENDE)),
       category: unwrap(Lk20Category.create(Lk20Topic1T.LIGNINGER_OG_ULIKHETER, 'Diskriminant')),
-      solutionSteps: [unwrap(SolutionStep.create(1, 'Bruk diskriminanten', 'Én løsning betyr at diskriminanten er null.', '$(-6)^2-4k=0$')), unwrap(SolutionStep.create(2, 'Finn k', 'Løs $36-4k=0$.', '$k=9$'))],
+      solutionSteps: [unwrap(SolutionStep.create(1, 'Bruk diskriminanten', 'Én løsning betyr at diskriminanten er null.', '(-6)^2-4k=0')), unwrap(SolutionStep.create(2, 'Finn k', 'Løs $36-4k=0$.', 'k=9'))],
       correctAnswer: { type: 'numeric', value: 9 },
     });
     addTask({
       id: unwrap(TaskId.create('task-lig-5')),
       title: unwrap(Title.create('Ulikhet med brøk')),
-      description: unwrap(LatexDescription.create('Finn den minste heltallsløsningen til $\\frac{x-1}{x+2}>0$.')),
+      description: unwrap(LatexDescription.create('Finn den minste positive heltallsløsningen til $\\frac{x-1}{x+2}>0$.')),
       difficulty: unwrap(Difficulty.create(DifficultyLevel.KREVENDE)),
       category: unwrap(Lk20Category.create(Lk20Topic1T.LIGNINGER_OG_ULIKHETER, 'Rasjonale ulikheter')),
-      solutionSteps: [unwrap(SolutionStep.create(1, 'Finn kritiske punkter', 'Telleren er null ved $x=1$, og nevneren er null ved $x=-2$.', '$x=-2,\\;x=1$')), unwrap(SolutionStep.create(2, 'Les fortegnene', 'Brøken er positiv når teller og nevner har samme fortegn.', '$x<-2\\text{ eller }x>1$'))],
+      solutionSteps: [unwrap(SolutionStep.create(1, 'Finn kritiske punkter', 'Telleren er null ved $x=1$, og nevneren er null ved $x=-2$.', 'x=-2,\\;x=1')), unwrap(SolutionStep.create(2, 'Les fortegnene', 'Brøken er positiv når $x<-2$ eller $x>1$. Minste positive heltallsløsning er $2$.', 'x<-2\\text{ eller }x>1'))],
       correctAnswer: { type: 'numeric', value: 2 },
     });
     addTask({
@@ -457,7 +457,7 @@ export class InMemoryTaskRepository implements TaskRepositoryPort {
       description: unwrap(LatexDescription.create('Funksjonen $f(x)=2x+k$ har nullpunktet $x=5$. Finn $k$.')),
       difficulty: unwrap(Difficulty.create(DifficultyLevel.LETT)),
       category: unwrap(Lk20Category.create(Lk20Topic1T.FUNKSJONER, 'Parametre')),
-      solutionSteps: [unwrap(SolutionStep.create(1, 'Bruk nullpunktet', 'I nullpunktet er funksjonsverdien lik null.', '$0=2\\cdot5+k$')), unwrap(SolutionStep.create(2, 'Løs for k', 'Trekk 10 fra begge sider.', '$k=-10$'))],
+      solutionSteps: [unwrap(SolutionStep.create(1, 'Bruk nullpunktet', 'I nullpunktet er funksjonsverdien lik null.', '0=2\\cdot5+k')), unwrap(SolutionStep.create(2, 'Løs for k', 'Trekk 10 fra begge sider.', 'k=-10'))],
       correctAnswer: { type: 'numeric', value: -10 },
     });
     addTask({
@@ -466,7 +466,7 @@ export class InMemoryTaskRepository implements TaskRepositoryPort {
       description: unwrap(LatexDescription.create('Finn x-koordinaten der $f(x)=x^2$ og $g(x)=2x+3$ skjærer hverandre på høyre side av y-aksen.')),
       difficulty: unwrap(Difficulty.create(DifficultyLevel.KREVENDE)),
       category: unwrap(Lk20Category.create(Lk20Topic1T.FUNKSJONER, 'Skjæringspunkter')),
-      solutionSteps: [unwrap(SolutionStep.create(1, 'Sett funksjonene lik hverandre', 'I skjæringspunktet har funksjonene samme verdi.', '$x^2=2x+3$')), unwrap(SolutionStep.create(2, 'Løs andregradsligningen', 'Faktoriser $(x-3)(x+1)=0$. Høyre side av y-aksen betyr $x>0$.', '$x=3$'))],
+      solutionSteps: [unwrap(SolutionStep.create(1, 'Sett funksjonene lik hverandre', 'I skjæringspunktet har funksjonene samme verdi.', 'x^2=2x+3')), unwrap(SolutionStep.create(2, 'Løs andregradsligningen', 'Faktoriser $(x-3)(x+1)=0$. Høyre side av y-aksen betyr $x>0$.', 'x=3'))],
       correctAnswer: { type: 'numeric', value: 3 },
     });
     addTask({
@@ -475,7 +475,7 @@ export class InMemoryTaskRepository implements TaskRepositoryPort {
       description: unwrap(LatexDescription.create('Finn stigningstallet til tangenten til $f(x)=x^3-2x$ når $x=2$.')),
       difficulty: unwrap(Difficulty.create(DifficultyLevel.MIDDELS)),
       category: unwrap(Lk20Category.create(Lk20Topic1T.DERIVASJON_OG_VEKSTFART, 'Tangent')),
-      solutionSteps: [unwrap(SolutionStep.create(1, 'Deriver funksjonen', 'Bruk potensregelen ledd for ledd.', '$f\\prime(x)=3x^2-2$')), unwrap(SolutionStep.create(2, 'Sett inn x', 'Tangentens stigningstall er den deriverte i punktet.', '$f\\prime(2)=10$'))],
+      solutionSteps: [unwrap(SolutionStep.create(1, 'Deriver funksjonen', 'Bruk potensregelen ledd for ledd.', 'f\\prime(x)=3x^2-2')), unwrap(SolutionStep.create(2, 'Sett inn x', 'Tangentens stigningstall er den deriverte i punktet.', 'f\\prime(2)=10'))],
       correctAnswer: { type: 'numeric', value: 10 },
     });
     addTask({
@@ -484,7 +484,7 @@ export class InMemoryTaskRepository implements TaskRepositoryPort {
       description: unwrap(LatexDescription.create('Et rektangel har omkrets 20. Hvis den ene siden er $x$, er arealet $A(x)=x(10-x)$. Finn x når arealet er størst.')),
       difficulty: unwrap(Difficulty.create(DifficultyLevel.KREVENDE)),
       category: unwrap(Lk20Category.create(Lk20Topic1T.DERIVASJON_OG_VEKSTFART, 'Optimering')),
-      solutionSteps: [unwrap(SolutionStep.create(1, 'Deriver arealet', 'Utvikle først $A(x)=10x-x^2$.', '$A\\prime(x)=10-2x$')), unwrap(SolutionStep.create(2, 'Finn kritisk punkt', 'Sett den deriverte lik null.', '$10-2x=0\\Rightarrow x=5$'))],
+      solutionSteps: [unwrap(SolutionStep.create(1, 'Deriver arealet', 'Utvikle først $A(x)=10x-x^2$.', 'A\\prime(x)=10-2x')), unwrap(SolutionStep.create(2, 'Finn kritisk punkt', 'Sett den deriverte lik null.', '10-2x=0\\Rightarrow x=5'))],
       correctAnswer: { type: 'numeric', value: 5 },
     });
     addTask({
@@ -493,7 +493,7 @@ export class InMemoryTaskRepository implements TaskRepositoryPort {
       description: unwrap(LatexDescription.create('I en trekant er $A=30^\\circ$, $B=45^\\circ$ og $a=6$. Finn siden $b$ avrundet til to desimaler.')),
       difficulty: unwrap(Difficulty.create(DifficultyLevel.MIDDELS)),
       category: unwrap(Lk20Category.create(Lk20Topic1T.TRIGONOMETRI, 'Sinussetningen')),
-      solutionSteps: [unwrap(SolutionStep.create(1, 'Sett opp sinussetningen', 'Koble side og motstående vinkel.', '$\\frac{b}{\\sin45^\\circ}=\\frac{6}{\\sin30^\\circ}$')), unwrap(SolutionStep.create(2, 'Regn ut b', 'Isoler b og bruk gradmodus.', '$b=6\\frac{\\sin45^\\circ}{\\sin30^\\circ}\\approx8.49$'))],
+      solutionSteps: [unwrap(SolutionStep.create(1, 'Sett opp sinussetningen', 'Koble side og motstående vinkel.', '\\frac{b}{\\sin45^\\circ}=\\frac{6}{\\sin30^\\circ}')), unwrap(SolutionStep.create(2, 'Regn ut b', 'Isoler b og bruk gradmodus.', 'b=6\\frac{\\sin45^\\circ}{\\sin30^\\circ}\\approx8.49'))],
       correctAnswer: { type: 'numeric', value: 8.49, tolerance: 0.02 },
     });
     addTask({
@@ -502,7 +502,7 @@ export class InMemoryTaskRepository implements TaskRepositoryPort {
       description: unwrap(LatexDescription.create('En trekant har sider $a=5$, $b=6$ og $c=7$. Finn vinkelen $C$ mellom sidene $a$ og $b$, avrundet til én desimal.')),
       difficulty: unwrap(Difficulty.create(DifficultyLevel.KREVENDE)),
       category: unwrap(Lk20Category.create(Lk20Topic1T.TRIGONOMETRI, 'Cosinussetningen')),
-      solutionSteps: [unwrap(SolutionStep.create(1, 'Isoler cosinus', 'Bruk $c^2=a^2+b^2-2ab\\cos C$.', '$\\cos C=\\frac{a^2+b^2-c^2}{2ab}=\\frac{12}{60}=0.2$')), unwrap(SolutionStep.create(2, 'Finn vinkelen', 'Bruk invers cosinus.', '$C=\\cos^{-1}(0.2)\\approx78.5^\\circ$'))],
+      solutionSteps: [unwrap(SolutionStep.create(1, 'Isoler cosinus', 'Bruk $c^2=a^2+b^2-2ab\\cos C$.', '\\cos C=\\frac{a^2+b^2-c^2}{2ab}=\\frac{12}{60}=0.2')), unwrap(SolutionStep.create(2, 'Finn vinkelen', 'Bruk invers cosinus.', 'C=\\cos^{-1}(0.2)\\approx78.5^\\circ'))],
       correctAnswer: { type: 'numeric', value: 78.5, tolerance: 0.2 },
     });
     addTask({
@@ -511,7 +511,7 @@ export class InMemoryTaskRepository implements TaskRepositoryPort {
       description: unwrap(LatexDescription.create('En lineær modell er $f(x)=3.5x+12$. Hva er modellens prediksjon når $x=8$?')),
       difficulty: unwrap(Difficulty.create(DifficultyLevel.LETT)),
       category: unwrap(Lk20Category.create(Lk20Topic1T.MODELLERING_OG_PROBLEMSLOYSING, 'Lineær modell')),
-      solutionSteps: [unwrap(SolutionStep.create(1, 'Sett inn x', 'Prediksjonen finnes ved å bruke modellen.', '$f(8)=3.5\\cdot8+12$')), unwrap(SolutionStep.create(2, 'Regn ut', 'Gang og legg sammen.', '$f(8)=40$'))],
+      solutionSteps: [unwrap(SolutionStep.create(1, 'Sett inn x', 'Prediksjonen finnes ved å bruke modellen.', 'f(8)=3.5\\cdot8+12')), unwrap(SolutionStep.create(2, 'Regn ut', 'Gang og legg sammen.', 'f(8)=40'))],
       correctAnswer: { type: 'numeric', value: 40 },
     });
     addTask({
@@ -520,7 +520,7 @@ export class InMemoryTaskRepository implements TaskRepositoryPort {
       description: unwrap(LatexDescription.create('En algoritme starter med 200 og øker verdien med 10 % tre ganger. Hva blir sluttverdien?')),
       difficulty: unwrap(Difficulty.create(DifficultyLevel.MIDDELS)),
       category: unwrap(Lk20Category.create(Lk20Topic1T.MODELLERING_OG_PROBLEMSLOYSING, 'Programmering og algoritmer')),
-      solutionSteps: [unwrap(SolutionStep.create(1, 'Finn vekstfaktoren', 'En økning på 10 % gir vekstfaktor 1.10.', '$200\\cdot1.10^3$')), unwrap(SolutionStep.create(2, 'Kontroller resultatet', 'Gjenta multiplikasjonen tre ganger.', '$266.2$'))],
+      solutionSteps: [unwrap(SolutionStep.create(1, 'Finn vekstfaktoren', 'En økning på 10 % gir vekstfaktor 1.10.', '200\\cdot1.10^3')), unwrap(SolutionStep.create(2, 'Kontroller resultatet', 'Gjenta multiplikasjonen tre ganger.', '266.2'))],
       correctAnswer: { type: 'numeric', value: 266.2, tolerance: 0.1 },
     });
 
@@ -530,16 +530,16 @@ export class InMemoryTaskRepository implements TaskRepositoryPort {
       description: unwrap(LatexDescription.create('Forenkle uttrykket $\\sqrt{50}$. Oppgi svaret som $a\\sqrt{b}$.')),
       difficulty: unwrap(Difficulty.create(DifficultyLevel.MIDDELS)),
       category: unwrap(Lk20Category.create(Lk20Topic1T.TALL_OG_ALGEBRA, 'Røtter og potenser')),
-      solutionSteps: [unwrap(SolutionStep.create(1, 'Finn en kvadratfaktor', 'Skriv $50=25\\cdot2$.', '$\\sqrt{50}=\\sqrt{25}\\cdot\\sqrt{2}$')), unwrap(SolutionStep.create(2, 'Forenkle', 'Trekk $\\sqrt{25}=5$ utenfor roten.', '$5\\sqrt{2}$'))],
+      solutionSteps: [unwrap(SolutionStep.create(1, 'Finn en kvadratfaktor', 'Skriv $50=25\\cdot2$.', '\\sqrt{50}=\\sqrt{25}\\cdot\\sqrt{2}')), unwrap(SolutionStep.create(2, 'Forenkle', 'Trekk $\\sqrt{25}=5$ utenfor roten.', '5\\sqrt{2}'))],
       correctAnswer: { type: 'expression', latex: '5\\sqrt{2}' },
     });
     addTask({
       id: unwrap(TaskId.create('task-alg-7')),
       title: unwrap(Title.create('Standardform')),
-      description: unwrap(LatexDescription.create('Skriv $0.00045$ på standardform. Oppgi tallet foran $10$.')),
+      description: unwrap(LatexDescription.create('Skriv $0.00045$ på standardform. Oppgi tallet $a$ foran tiereksponenten $10^{-4}$.')),
       difficulty: unwrap(Difficulty.create(DifficultyLevel.LETT)),
       category: unwrap(Lk20Category.create(Lk20Topic1T.TALL_OG_ALGEBRA, 'Standardform')),
-      solutionSteps: [unwrap(SolutionStep.create(1, 'Flytt kommaet', 'Flytt kommaet fire plasser mot høyre for å få et tall mellom 1 og 10.', '$0.00045=4.5\\cdot10^{-4}$'))],
+      solutionSteps: [unwrap(SolutionStep.create(1, 'Flytt kommaet', 'Flytt kommaet fire plasser mot høyre for å få et tall mellom 1 og 10.', '0.00045=4.5\\cdot10^{-4}'))],
       correctAnswer: { type: 'numeric', value: 4.5 },
     });
     addTask({
@@ -548,7 +548,7 @@ export class InMemoryTaskRepository implements TaskRepositoryPort {
       description: unwrap(LatexDescription.create('Løs ligningen $3(x-2)+4=19$.')),
       difficulty: unwrap(Difficulty.create(DifficultyLevel.LETT)),
       category: unwrap(Lk20Category.create(Lk20Topic1T.LIGNINGER_OG_ULIKHETER, 'Lineære ligninger')),
-      solutionSteps: [unwrap(SolutionStep.create(1, 'Regn ut parentesen', 'Multipliser 3 inn i parentesen.', '$3x-6+4=19$')), unwrap(SolutionStep.create(2, 'Isoler x', 'Forenkle og del på 3.', '$3x=21\\Rightarrow x=7$'))],
+      solutionSteps: [unwrap(SolutionStep.create(1, 'Regn ut parentesen', 'Multipliser 3 inn i parentesen.', '3x-6+4=19')), unwrap(SolutionStep.create(2, 'Isoler x', 'Forenkle og del på 3.', '3x=21\\Rightarrow x=7'))],
       correctAnswer: { type: 'numeric', value: 7 },
     });
     addTask({
@@ -557,7 +557,7 @@ export class InMemoryTaskRepository implements TaskRepositoryPort {
       description: unwrap(LatexDescription.create('En funksjon har verdiene $f(1)=4$, $f(2)=7$ og $f(3)=10$. Hva er den gjennomsnittlige veksten per x-enhet?')),
       difficulty: unwrap(Difficulty.create(DifficultyLevel.LETT)),
       category: unwrap(Lk20Category.create(Lk20Topic1T.FUNKSJONER, 'Tabeller og vekst')),
-      solutionSteps: [unwrap(SolutionStep.create(1, 'Finn endringen', 'Funksjonsverdien øker fra 4 til 10 mens x øker fra 1 til 3.', '$\\Delta f=6,\\;\\Delta x=2$')), unwrap(SolutionStep.create(2, 'Del endringene', 'Gjennomsnittlig vekst er $\\Delta f/\\Delta x$.', '$6/2=3$'))],
+      solutionSteps: [unwrap(SolutionStep.create(1, 'Finn endringen', 'Funksjonsverdien øker fra 4 til 10 mens x øker fra 1 til 3.', '\\Delta f=6,\\;\\Delta x=2')), unwrap(SolutionStep.create(2, 'Del endringene', 'Gjennomsnittlig vekst er $\\Delta f/\\Delta x$.', '6/2=3'))],
       correctAnswer: { type: 'numeric', value: 3 },
     });
     addTask({
@@ -566,7 +566,7 @@ export class InMemoryTaskRepository implements TaskRepositoryPort {
       description: unwrap(LatexDescription.create('Finn gjennomsnittlig vekstfart for $f(x)=x^2$ fra $x=1$ til $x=4$.')),
       difficulty: unwrap(Difficulty.create(DifficultyLevel.MIDDELS)),
       category: unwrap(Lk20Category.create(Lk20Topic1T.DERIVASJON_OG_VEKSTFART, 'Gjennomsnittlig vekstfart')),
-      solutionSteps: [unwrap(SolutionStep.create(1, 'Finn funksjonsverdiene', 'Regn ut $f(1)$ og $f(4)$.', '$f(1)=1,\\;f(4)=16$')), unwrap(SolutionStep.create(2, 'Bruk vekstfartsformelen', 'Del endringen i funksjonsverdi på endringen i x.', '$\\frac{16-1}{4-1}=5$'))],
+      solutionSteps: [unwrap(SolutionStep.create(1, 'Finn funksjonsverdiene', 'Regn ut $f(1)$ og $f(4)$.', 'f(1)=1,\\;f(4)=16')), unwrap(SolutionStep.create(2, 'Bruk vekstfartsformelen', 'Del endringen i funksjonsverdi på endringen i x.', '\\frac{16-1}{4-1}=5'))],
       correctAnswer: { type: 'numeric', value: 5 },
     });
     addTask({
@@ -575,7 +575,7 @@ export class InMemoryTaskRepository implements TaskRepositoryPort {
       description: unwrap(LatexDescription.create('En rettvinklet trekant har kateter $6$ og $8$. Finn hypotenusen.')),
       difficulty: unwrap(Difficulty.create(DifficultyLevel.LETT)),
       category: unwrap(Lk20Category.create(Lk20Topic1T.TRIGONOMETRI, 'Pytagoras')),
-      solutionSteps: [unwrap(SolutionStep.create(1, 'Bruk Pytagoras', 'Hypotenusen er $c$, så $c^2=6^2+8^2$.', '$c^2=36+64=100$')), unwrap(SolutionStep.create(2, 'Ta kvadratroten', 'Lengder er positive.', '$c=10$'))],
+      solutionSteps: [unwrap(SolutionStep.create(1, 'Bruk Pytagoras', 'Hypotenusen er $c$, så $c^2=6^2+8^2$.', 'c^2=36+64=100')), unwrap(SolutionStep.create(2, 'Ta kvadratroten', 'Lengder er positive.', 'c=10'))],
       correctAnswer: { type: 'numeric', value: 10 },
     });
     addTask({
@@ -599,11 +599,11 @@ export class InMemoryTaskRepository implements TaskRepositoryPort {
     addTask({
       id: unwrap(TaskId.create('task-model-7')),
       title: unwrap(Title.create('Velg riktig modelltype')),
-      description: unwrap(LatexDescription.create('En størrelse øker med samme prosent hver periode. Hvilken modelltype passer best? Svar med modelltypen.')),
+      description: unwrap(LatexDescription.create('En størrelse øker med samme prosent hver periode. Hvilken modelltype passer best? Svar med modelltypen (f.eks. eksponentialmodell).')),
       difficulty: unwrap(Difficulty.create(DifficultyLevel.LETT)),
       category: unwrap(Lk20Category.create(Lk20Topic1T.MODELLERING_OG_PROBLEMSLOYSING, 'Modellvalg')),
-      solutionSteps: [unwrap(SolutionStep.create(1, 'Se etter prosentvis vekst', 'Samme prosentvise endring gir samme vekstfaktor i hver periode.', 'Eksponentialmodell'))],
-      correctAnswer: { type: 'text', text: 'eksponentialmodell' },
+      solutionSteps: [unwrap(SolutionStep.create(1, 'Se etter prosentvis vekst', 'Samme prosentvise endring gir samme vekstfaktor i hver periode, altså en eksponentialmodell.', 'Eksponentialmodell'))],
+      correctAnswer: { type: 'text', text: 'eksponential' },
     });
 
     // 6. Modellering, bevis og problemløsing
@@ -765,7 +765,7 @@ export class InMemoryTaskRepository implements TaskRepositoryPort {
     addTask({
       id: unwrap(TaskId.create('task-fun-7')),
       title: unwrap(Title.create('Vertikal asymptote')),
-      description: unwrap(LatexDescription.create('Finn den vertikale tyr-asymptoten for $f(x) = \\frac{2x+3}{x-5}$. Oppgi tallet der nevneren blir null.')),
+      description: unwrap(LatexDescription.create('Finn den vertikale asymptoten for $f(x) = \\frac{2x+3}{x-5}$. Oppgi x-verdien der nevneren blir null.')),
       difficulty: unwrap(Difficulty.create(DifficultyLevel.LETT)),
       category: unwrap(Lk20Category.create(Lk20Topic1T.FUNKSJONER, 'Rasjonale funksjoner')),
       solutionSteps: [

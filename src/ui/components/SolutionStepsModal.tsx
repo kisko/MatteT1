@@ -56,7 +56,7 @@ export const SolutionStepsModal: React.FC<SolutionStepsModalProps> = ({
 
                 {step.formulaLatex && (
                   <div className="mt-2 p-2 rounded bg-slate-900/80 border border-slate-800">
-                    <MathView latex={`$$${step.formulaLatex}$$`} displayMode={true} />
+                    <MathView latex={step.formulaLatex} displayMode={true} />
                   </div>
                 )}
               </div>

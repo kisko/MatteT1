@@ -68,24 +68,23 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             Lær hele matematikk 1T
           </h1>
           <p className="text-slate-300 text-sm sm:text-lg leading-relaxed mb-5 sm:mb-6">
-            Bygg forståelse steg for steg med interaktive leksjoner, utforsk eksempler og øv med målrettet pedagogisk veiledning.
+            Utforsk, prøv og lek deg fram til bedre matematikkforståelse. Bygg forståelse steg for steg, i ditt eget tempo, på mobil, nettbrett eller PC.
           </p>
 
-          {/* Aksjons-knapper */}
           <div className="mb-6 flex flex-col sm:flex-row flex-wrap gap-2.5 sm:gap-3">
             <button
-              onClick={() => onStartExam(12)}
-              className="inline-flex items-center justify-center gap-2 rounded-xl border border-amber-400/50 bg-amber-400/15 px-4 py-3 text-xs sm:text-sm font-bold text-amber-200 transition-colors hover:bg-amber-400/25 active:scale-98"
-            >
-              <Timer className="h-4 w-4 sm:h-5 sm:w-5" />
-              <span>Hurtig-test · 12 oppgaver (45 min)</span>
-            </button>
-            <button
-              onClick={() => onStartExam(24)}
-              className="inline-flex items-center justify-center gap-2 rounded-xl border border-indigo-400/50 bg-indigo-400/15 px-4 py-3 text-xs sm:text-sm font-bold text-indigo-200 transition-colors hover:bg-indigo-400/25 active:scale-98"
+              onClick={() => document.getElementById('learning-modules')?.scrollIntoView({ behavior: 'smooth' })}
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-500 px-4 py-3 text-xs sm:text-sm font-bold text-white transition-colors hover:bg-indigo-400 active:scale-98"
             >
               <BookOpenCheck className="h-4 w-4 sm:h-5 sm:w-5" />
-              <span>Full eksamensøkt · 24 oppgaver</span>
+              <span>Start læringsreisen</span>
+            </button>
+            <button
+              onClick={onOpenMatrix}
+              className="inline-flex items-center justify-center gap-2 rounded-xl border border-indigo-400/50 bg-indigo-400/15 px-4 py-3 text-xs sm:text-sm font-bold text-indigo-200 transition-colors hover:bg-indigo-400/25 active:scale-98"
+            >
+              <Target className="h-4 w-4 sm:h-5 sm:w-5" />
+              <span>Se kompetansemål</span>
             </button>
           </div>
 
@@ -169,7 +168,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       )}
 
       {/* Emneoversikt (Grid of Categories) */}
-      <div className="mb-4 sm:mb-6">
+      <div id="learning-modules" className="mb-4 sm:mb-6 scroll-mt-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4 mb-2">
           <div>
             <h2 className="text-xl sm:text-2xl font-bold text-white">
@@ -197,17 +196,45 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             tasksCorrect: 0,
             masteryPercentage: 0,
           };
+          const totalTasks = taskCatalog.filter((t) => t.category.mainTopic === topic).length;
 
           return (
             <CategoryCard
               key={topic}
               topic={topic}
               mastery={mastery}
+              totalAvailableTasks={totalTasks}
               onStart={onStartTopic}
             />
           );
         })}
       </div>
+
+      <section className="mt-8 sm:mt-10 rounded-2xl border border-slate-700 bg-slate-900/70 p-5 sm:p-6" aria-labelledby="practice-heading">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <div>
+            <p className="text-[11px] sm:text-xs font-bold uppercase tracking-widest text-slate-400">Når du vil sjekke deg selv</p>
+            <h2 id="practice-heading" className="mt-1 text-lg sm:text-xl font-bold text-white">Test deg etter at du har bygget forståelse</h2>
+            <p className="mt-1 text-xs sm:text-sm text-slate-400">Bruk en kort økt for å finne neste fokus, eller gjennomfør en full eksamensøkt.</p>
+          </div>
+          <div className="flex flex-col sm:flex-row gap-2.5 shrink-0">
+            <button
+              onClick={() => onStartExam(12)}
+              className="inline-flex items-center justify-center gap-2 rounded-xl border border-amber-400/50 bg-amber-400/10 px-4 py-2.5 text-xs sm:text-sm font-bold text-amber-200 transition-colors hover:bg-amber-400/20"
+            >
+              <Timer className="h-4 w-4" />
+              <span>Hurtig-test · 12 oppgaver</span>
+            </button>
+            <button
+              onClick={() => onStartExam(24)}
+              className="inline-flex items-center justify-center gap-2 rounded-xl border border-indigo-400/50 bg-indigo-400/10 px-4 py-2.5 text-xs sm:text-sm font-bold text-indigo-200 transition-colors hover:bg-indigo-400/20"
+            >
+              <BookOpenCheck className="h-4 w-4" />
+              <span>Full eksamensøkt</span>
+            </button>
+          </div>
+        </div>
+      </section>
 
     </div>
   );

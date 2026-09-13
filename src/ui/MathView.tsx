@@ -7,6 +7,27 @@ export type MathToken =
   | { type: 'block'; content: string };
 
 /**
+ * Sjekker om en streng uten eksplisitte $-skillemerker ser ut som et ren matematisk LaTeX-uttrykk.
+ */
+export function looksLikeLatexMath(input: string): boolean {
+  if (!input) return false;
+  const str = input.trim();
+  if (!str) return false;
+
+  // Inneholder typiske LaTeX-kommandoer
+  if (/\\(frac|sqrt|cdot|approx|le|ge|pm|infty|sin|cos|tan|lg|ln|binom|Delta|prime|Rightarrow|rightarrow|to|in|cap|cup|quad|text)/.test(str)) {
+    return true;
+  }
+
+  // Inneholder potens/hevet skrift eller senket skrift
+  if (/[a-zA-Z0-9]\^[a-zA-Z0-9{}]|[a-zA-Z0-9]_[a-zA-Z0-9{}]/.test(str)) {
+    return true;
+  }
+
+  return false;
+}
+
+/**
  * Parserer en streng med fritekst og LaTeX-matematikk ($...$ og $$...$$ samt \(...\) og \[...\]).
  * Bevarer eskaperte dollartegn (\$ -> $).
  */
@@ -22,43 +43,53 @@ export function parseLatex(input: string): MathToken[] {
 
   while ((match = regex.exec(input)) !== null) {
     if (match.index > lastIndex) {
-      tokens.push({
-        type: 'text',
-        content: input.slice(lastIndex, match.index),
-      });
+      const textContent = input.slice(lastIndex, match.index);
+      if (textContent) {
+        tokens.push({ type: 'text', content: textContent });
+      }
     }
 
     const rawMatch = match[0];
+    let content = rawMatch;
+    let type: 'block' | 'inline' = 'inline';
+
     if (rawMatch.startsWith('$$') && rawMatch.endsWith('$$')) {
-      tokens.push({
-        type: 'block',
-        content: rawMatch.slice(2, -2).trim(),
-      });
+      content = rawMatch.slice(2, -2).trim();
+      type = 'block';
     } else if (rawMatch.startsWith('\\[') && rawMatch.endsWith('\\]')) {
-      tokens.push({
-        type: 'block',
-        content: rawMatch.slice(2, -2).trim(),
-      });
+      content = rawMatch.slice(2, -2).trim();
+      type = 'block';
     } else if (rawMatch.startsWith('\\(') && rawMatch.endsWith('\\)')) {
-      tokens.push({
-        type: 'inline',
-        content: rawMatch.slice(2, -2).trim(),
-      });
+      content = rawMatch.slice(2, -2).trim();
+      type = 'inline';
     } else if (rawMatch.startsWith('$') && rawMatch.endsWith('$')) {
-      tokens.push({
-        type: 'inline',
-        content: rawMatch.slice(1, -1).trim(),
-      });
+      content = rawMatch.slice(1, -1).trim();
+      type = 'inline';
+    }
+
+    // Rens for eventuelle gjenstående ytre $ i content (f.eks hvis input var "$$ $18=a\cdot3^2$ $$")
+    content = content.replace(/^\$+|\$+$/g, '').trim();
+
+    if (content) {
+      tokens.push({ type, content });
     }
 
     lastIndex = regex.lastIndex;
   }
 
   if (lastIndex < input.length) {
-    tokens.push({
-      type: 'text',
-      content: input.slice(lastIndex),
-    });
+    const textContent = input.slice(lastIndex);
+    if (textContent) {
+      tokens.push({ type: 'text', content: textContent });
+    }
+  }
+
+  // Hvis det ikke var noen eksplisitte skillemerker ($, $$), men hele strengen ser ut som et LaTeX-uttrykk:
+  if (tokens.length === 1 && tokens[0].type === 'text') {
+    const singleText = tokens[0].content;
+    if (looksLikeLatexMath(singleText)) {
+      return [{ type: 'inline', content: singleText.trim() }];
+    }
   }
 
   return tokens;
@@ -87,7 +118,20 @@ export const MathView: React.FC<MathViewProps> = ({
   throwOnError = false,
   errorColor = '#cc0000',
 }) => {
-  const tokens = useMemo(() => parseLatex(latex), [latex]);
+  const tokens = useMemo(() => {
+    if (!latex) return [];
+
+    // Hvis komponenten eksplisitt er satt med displayMode={true} (f.eks. i formelblokker):
+    // Skrell ytre dollartegn dersom det finnes, for å unngå syntax-error fra dobbeltinnpakking.
+    if (displayMode) {
+      const clean = latex.trim().replace(/^\$+|\$+$/g, '').trim();
+      if (clean) {
+        return [{ type: 'block' as const, content: clean }];
+      }
+    }
+
+    return parseLatex(latex);
+  }, [latex, displayMode]);
 
   const renderToken = (token: MathToken, index: number) => {
     if (token.type === 'text') {
