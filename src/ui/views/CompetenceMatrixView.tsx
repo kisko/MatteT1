@@ -71,7 +71,20 @@ export const CompetenceMatrixView: React.FC<CompetenceMatrixViewProps> = ({
                   const correct = stats.reduce((sum, stat) => sum + (stat.tasksCorrect ?? 0), 0);
                   const mastery = attempted > 0 ? Math.round((correct / attempted) * 100) : null;
                   return (
-                    <article key={goal.id} className="flex min-h-44 flex-col rounded-xl border border-slate-800 bg-slate-900/60 p-4 transition-colors hover:border-slate-700">
+                    <article
+                      key={goal.id}
+                      role="button"
+                      tabIndex={0}
+                      aria-label={`Start målrettet trening: ${goal.title}`}
+                      onClick={() => onStartGoal(definition.topic, goal.taskLabels)}
+                      onKeyDown={(event) => {
+                        if (event.key === 'Enter' || event.key === ' ') {
+                          event.preventDefault();
+                          onStartGoal(definition.topic, goal.taskLabels);
+                        }
+                      }}
+                      className="flex min-h-44 flex-col rounded-xl border border-slate-800 bg-slate-900/60 p-4 transition-colors hover:border-slate-700"
+                    >
                       <div className="flex items-start justify-between gap-2">
                         <span className="text-xs font-bold text-indigo-300">{goal.id}</span>
                         <span className={mastery !== null && mastery >= 70 ? 'text-xs font-bold text-emerald-300' : 'text-xs font-bold text-amber-300'}>{mastery === null ? 'Ikke prøvd' : `${mastery}%`}</span>
@@ -84,7 +97,10 @@ export const CompetenceMatrixView: React.FC<CompetenceMatrixViewProps> = ({
                             <button
                               key={idx}
                               type="button"
-                              onClick={() => setActiveVideo({ video: vid, goalTitle: goal.title, goalId: goal.id })}
+                              onClick={(event) => {
+                                event.stopPropagation();
+                                setActiveVideo({ video: vid, goalTitle: goal.title, goalId: goal.id });
+                              }}
                               title={`${vid.title} (${vid.channel})`}
                               className="inline-flex items-center gap-1 text-[11px] font-medium text-rose-300 hover:text-rose-200 bg-rose-950/40 hover:bg-rose-900/50 border border-rose-800/40 px-2 py-0.5 rounded-md transition-colors cursor-pointer"
                             >
@@ -97,7 +113,13 @@ export const CompetenceMatrixView: React.FC<CompetenceMatrixViewProps> = ({
                       )}
                       <div className="mt-auto pt-4">
                         <div className="mb-2.5 flex items-center justify-between text-[11px] text-slate-500"><span>{availableTasks}/{goal.targetTasks} oppgaver</span><span>{attempted} forsøk</span></div>
-                        <button onClick={() => onStartGoal(definition.topic, goal.taskLabels)} className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-indigo-300 hover:text-indigo-200">
+                        <button
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            onStartGoal(definition.topic, goal.taskLabels);
+                          }}
+                          className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-indigo-300 hover:text-indigo-200"
+                        >
                           <Crosshair className="h-4 w-4" /> Tren målrettet <ArrowRight className="h-4 w-4" />
                         </button>
                       </div>

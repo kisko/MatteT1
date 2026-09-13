@@ -242,7 +242,11 @@ export const App: React.FC = () => {
       </main>
 
       <footer className="mx-auto max-w-7xl px-4 py-8 text-center text-xs text-slate-500 sm:px-6 lg:px-8">
-        Laget av Kjell Inge Skjønberg · Versjon {APP_VERSION}
+        Laget av{' '}
+        <a href="https://kisk.no" className="hover:text-slate-300 hover:underline">
+          kisk.no
+        </a>{' '}
+        · Versjon {APP_VERSION}
       </footer>
 
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />

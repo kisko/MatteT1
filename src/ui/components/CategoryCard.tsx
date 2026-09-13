@@ -61,7 +61,17 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
   const title = Lk20TopicNames[topic];
 
   return (
-    <div
+    <article
+      role="button"
+      tabIndex={0}
+      aria-label={`Åpne leksjon: ${title}`}
+      onClick={() => onStart(topic)}
+      onKeyDown={(event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          onStart(topic);
+        }
+      }}
       className={`group relative rounded-2xl bg-gradient-to-br ${details.color} p-6 border backdrop-blur-sm transition-all duration-300 hover:shadow-xl hover:-translate-y-1 flex flex-col justify-between`}
     >
       <div>
@@ -106,13 +116,16 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
 
         {/* Start Button */}
         <button
-          onClick={() => onStart(topic)}
+          onClick={(event) => {
+            event.stopPropagation();
+            onStart(topic);
+          }}
           className="w-full py-2.5 px-4 rounded-xl bg-slate-900/90 hover:bg-indigo-600 text-white font-semibold text-sm border border-slate-700 hover:border-indigo-500 flex items-center justify-center gap-2 shadow-lg transition-all group-hover:bg-indigo-600 group-hover:border-indigo-400"
         >
           <span>Åpne leksjon</span>
           <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
         </button>
       </div>
-    </div>
+    </article>
   );
 };
