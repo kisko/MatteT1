@@ -313,12 +313,6 @@ const InteractiveGraph: React.FC<InteractiveGraphProps> = ({ mode, primary, seco
   const padding = 42;
   const xMin = -5;
   const xMax = 5;
-  const yMin = -10;
-  const yMax = 10;
-  const toGraphX = (value: number) => padding + ((value - xMin) / (xMax - xMin)) * (graphWidth - padding * 2);
-  const toGraphY = (value: number) => graphHeight - padding - ((value - yMin) / (yMax - yMin)) * (graphHeight - padding * 2);
-  const gridXValues = fineGrid ? [-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5] : [-5, -2.5, 0, 2.5, 5];
-  const gridYValues = fineGrid ? [-10, -8, -6, -4, -2, 0, 2, 4, 6, 8, 10] : [-10, -5, 0, 5, 10];
   const valueAt = (value: number) => {
     if (mode === 'derivative') return secondary * value ** 2;
     if (functionType === 'quadratic') return primary * value ** 2 + secondary * value + tertiary;
@@ -326,6 +320,14 @@ const InteractiveGraph: React.FC<InteractiveGraphProps> = ({ mode, primary, seco
     if (functionType === 'exponential') return secondary * (1 + primary / 100) ** value;
     return primary * value + secondary;
   };
+  const yLimit = Math.max(10, Math.ceil(Math.max(...Array.from({ length: 41 }, (_, index) => Math.abs(valueAt(xMin + index * 0.25)))) / 5) * 5);
+  const yMin = -yLimit;
+  const yMax = yLimit;
+  const toGraphX = (value: number) => padding + ((value - xMin) / (xMax - xMin)) * (graphWidth - padding * 2);
+  const toGraphY = (value: number) => graphHeight - padding - ((value - yMin) / (yMax - yMin)) * (graphHeight - padding * 2);
+  const gridXValues = fineGrid ? [-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5] : [-5, -2.5, 0, 2.5, 5];
+  const gridYValues = Array.from({ length: fineGrid ? 11 : 5 }, (_, index) => -yLimit + (2 * yLimit * index) / (fineGrid ? 10 : 4));
+  const axisYValues = [-yLimit, -yLimit / 2, 0, yLimit / 2, yLimit];
   const graphPoints = Array.from({ length: 41 }, (_, index) => {
     const xValue = xMin + index * 0.25;
     return `${toGraphX(xValue)},${toGraphY(valueAt(xValue))}`;
@@ -343,7 +345,7 @@ const InteractiveGraph: React.FC<InteractiveGraphProps> = ({ mode, primary, seco
         <line x1={toGraphX(0)} y1={padding} x2={toGraphX(0)} y2={graphHeight - padding} stroke="#475569" strokeWidth="1" />
         <line x1={padding} y1={toGraphY(0)} x2={graphWidth - padding} y2={toGraphY(0)} stroke="#475569" strokeWidth="1" />
         {[-5, -2.5, 0, 2.5, 5].map((tick) => <g key={`x-${tick}`}><line x1={toGraphX(tick)} y1={toGraphY(0) - 4} x2={toGraphX(tick)} y2={toGraphY(0) + 4} stroke="#64748b" /><text x={toGraphX(tick)} y={toGraphY(0) + 17} textAnchor="middle" fill="#94a3b8" fontSize="9">{tick}</text></g>)}
-        {[-10, -5, 0, 5, 10].map((tick) => <g key={`y-${tick}`}><line x1={toGraphX(0) - 4} y1={toGraphY(tick)} x2={toGraphX(0) + 4} y2={toGraphY(tick)} stroke="#64748b" /><text x={toGraphX(0) - 8} y={toGraphY(tick) + 3} textAnchor="end" fill="#94a3b8" fontSize="9">{tick}</text></g>)}
+        {axisYValues.map((tick) => <g key={`y-${tick}`}><line x1={toGraphX(0) - 4} y1={toGraphY(tick)} x2={toGraphX(0) + 4} y2={toGraphY(tick)} stroke="#64748b" /><text x={toGraphX(0) - 8} y={toGraphY(tick) + 3} textAnchor="end" fill="#94a3b8" fontSize="9">{tick}</text></g>)}
         <polyline points={graphPoints} fill="none" stroke="#67e8f9" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
         {mode === 'derivative' && (
           <line x1={toGraphX(-2)} y1={toGraphY(tangentStart)} x2={toGraphX(2)} y2={toGraphY(tangentEnd)} stroke="#fbbf24" strokeWidth="2" strokeDasharray="6 4" />
@@ -463,24 +465,30 @@ const InteractiveVisual: React.FC<InteractiveVisualProps> = ({ topic, primary, s
     );
   }
 
+  const algebraValues = Array.from({ length: 41 }, (_, pointIndex) => {
+    const xValue = -5 + pointIndex * 0.25;
+    return (xValue + primary) * (xValue + secondary);
+  });
+  const algebraYLimit = Math.max(10, Math.ceil(Math.max(...algebraValues.map(Math.abs)) / 5) * 5);
   const algebraGridX = fineGrid ? [-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5] : [-5, -2.5, 0, 2.5, 5];
-  const algebraGridY = fineGrid ? [-10, -8, -6, -4, -2, 0, 2, 4, 6, 8, 10] : [-10, -5, 0, 5, 10];
+  const algebraGridY = Array.from({ length: fineGrid ? 11 : 5 }, (_, index) => -algebraYLimit + (2 * algebraYLimit * index) / (fineGrid ? 10 : 4));
+  const algebraAxisYValues = [-algebraYLimit, -algebraYLimit / 2, 0, algebraYLimit / 2, algebraYLimit];
   const algebraPoints = Array.from({ length: 41 }, (_, pointIndex) => {
     const xValue = -5 + pointIndex * 0.25;
     const yValue = (xValue + primary) * (xValue + secondary);
     const graphX = 28 + ((xValue + 5) / 10) * (width - 56);
-    const graphY = height - 24 - ((Math.max(-10, Math.min(10, yValue)) + 10) / 20) * (height - 48);
+    const graphY = height - 24 - ((yValue + algebraYLimit) / (2 * algebraYLimit)) * (height - 48);
     return `${graphX},${graphY}`;
   }).join(' ');
   return (
     <div className="rounded-xl border border-sky-300/25 bg-slate-950/80 p-3 mb-5">
       <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-auto" role="img" aria-label="Graf for det faktoriserte andregradsuttrykket">
         {algebraGridX.map((tick) => <line key={`algebra-grid-x-${tick}`} x1={28 + ((tick + 5) / 10) * (width - 56)} y1="12" x2={28 + ((tick + 5) / 10) * (width - 56)} y2={height - 24} stroke="#334155" strokeWidth="0.7" strokeOpacity="0.55" />)}
-        {algebraGridY.map((tick) => <line key={`algebra-grid-y-${tick}`} x1="28" y1={height - 24 - ((tick + 10) / 20) * (height - 48)} x2={width - 20} y2={height - 24 - ((tick + 10) / 20) * (height - 48)} stroke="#334155" strokeWidth="0.7" strokeOpacity="0.55" />)}
+        {algebraGridY.map((tick) => <line key={`algebra-grid-y-${tick}`} x1="28" y1={height - 24 - ((tick + algebraYLimit) / (2 * algebraYLimit)) * (height - 48)} x2={width - 20} y2={height - 24 - ((tick + algebraYLimit) / (2 * algebraYLimit)) * (height - 48)} stroke="#334155" strokeWidth="0.7" strokeOpacity="0.55" />)}
         <line x1="28" y1="12" x2="28" y2={height - 24} stroke="#475569" />
         <line x1="28" y1={height / 2} x2={width - 20} y2={height / 2} stroke="#475569" />
         {[-5, -2.5, 0, 2.5, 5].map((tick) => <g key={`algebra-x-${tick}`}><line x1={28 + ((tick + 5) / 10) * (width - 56)} y1={height / 2 - 4} x2={28 + ((tick + 5) / 10) * (width - 56)} y2={height / 2 + 4} stroke="#64748b" /><text x={28 + ((tick + 5) / 10) * (width - 56)} y={height / 2 + 17} textAnchor="middle" fill="#94a3b8" fontSize="9">{tick}</text></g>)}
-        {[-10, -5, 0, 5, 10].map((tick) => <text key={`algebra-y-${tick}`} x="21" y={height - 24 - ((tick + 10) / 20) * (height - 48) + 3} textAnchor="end" fill="#94a3b8" fontSize="9">{tick}</text>)}
+        {algebraAxisYValues.map((tick) => <text key={`algebra-y-${tick}`} x="21" y={height - 24 - ((tick + algebraYLimit) / (2 * algebraYLimit)) * (height - 48) + 3} textAnchor="end" fill="#94a3b8" fontSize="9">{tick}</text>)}
         <polyline points={algebraPoints} fill="none" stroke="#fbbf24" strokeWidth="3" strokeLinecap="round" />
         <text x={width - 24} y={height / 2 - 7} fill="#94a3b8" fontSize="11">x</text>
         <text x="35" y="18" fill="#94a3b8" fontSize="11">y</text>
