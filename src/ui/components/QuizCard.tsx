@@ -77,20 +77,20 @@ export const QuizCard: React.FC<QuizCardProps> = ({
   };
 
   return (
-    <div className="w-full max-w-3xl mx-auto rounded-3xl bg-slate-900 border border-slate-800 shadow-2xl p-6 sm:p-8 backdrop-blur-md">
+    <div className="w-full max-w-3xl mx-auto rounded-2xl sm:rounded-3xl bg-slate-900 border border-slate-800 shadow-2xl p-4 sm:p-8 backdrop-blur-md min-w-0 overflow-hidden">
       {/* Top Bar: Progress and Difficulty */}
-      <div className="flex items-center justify-between mb-6 pb-4 border-b border-slate-800">
+      <div className="flex items-center justify-between mb-4 sm:mb-6 pb-3 sm:pb-4 border-b border-slate-800">
         <div className="flex items-center gap-2">
-          <span className="text-xs font-bold px-3 py-1 rounded-full bg-indigo-950 text-indigo-300 border border-indigo-800/80">
+          <span className="text-[11px] sm:text-xs font-bold px-2.5 py-1 rounded-full bg-indigo-950 text-indigo-300 border border-indigo-800/80">
             Oppgave {taskIndex + 1} av {totalTasks}
           </span>
-          <span className="text-xs font-medium text-slate-400">
+          <span className="text-[11px] sm:text-xs font-medium text-slate-400 truncate max-w-[120px] sm:max-w-none">
             {task.category.mainTopic.replace(/_/g, ' ')}
           </span>
         </div>
 
         <span
-          className={`text-xs font-semibold px-3 py-1 rounded-full border ${
+          className={`text-[11px] sm:text-xs font-semibold px-2.5 py-1 rounded-full border ${
             task.difficulty.level === 'LETT'
               ? 'bg-emerald-950 text-emerald-300 border-emerald-800'
               : task.difficulty.level === 'MIDDELS'

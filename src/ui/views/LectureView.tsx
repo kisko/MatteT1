@@ -804,38 +804,38 @@ export const LectureView: React.FC<LectureViewProps> = ({ topic, onBack, onStart
   };
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-16">
-      <div className="flex items-center justify-between gap-4 mb-8">
-        <button onClick={onBack} className="flex items-center gap-2 px-3.5 py-2 rounded-xl border border-slate-700 bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 transition-colors">
+    <div className="max-w-6xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8 pb-16 w-full min-w-0 overflow-hidden">
+      <div className="flex items-center justify-between gap-3 mb-6 sm:mb-8">
+        <button onClick={onBack} className="flex items-center gap-2 px-3.5 py-2 rounded-xl border border-slate-700 bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 transition-colors text-xs sm:text-sm">
           <ArrowLeft className="w-4 h-4" /> Til alle moduler
         </button>
-        <span className="text-xs uppercase tracking-widest text-indigo-300 font-bold">Leksjon {activeLesson} av {lessonCount} · {lessonTitle}</span>
+        <span className="text-[11px] sm:text-xs uppercase tracking-widest text-indigo-300 font-bold truncate">Leksjon {activeLesson} av {lessonCount} · {lessonTitle}</span>
       </div>
 
-      <header className="relative overflow-hidden rounded-3xl border border-indigo-400/30 bg-gradient-to-br from-indigo-950 via-slate-900 to-slate-950 p-7 sm:p-10 mb-8 shadow-2xl">
-        <div className="absolute -right-16 -top-20 w-72 h-72 rounded-full border-[32px] border-indigo-500/10 rotate-12" />
+      <header className="relative overflow-hidden rounded-2xl sm:rounded-3xl border border-indigo-400/30 bg-gradient-to-br from-indigo-950 via-slate-900 to-slate-950 p-5 sm:p-10 mb-6 sm:mb-8 shadow-2xl">
+        <div className="absolute -right-16 -top-20 w-72 h-72 rounded-full border-[32px] border-indigo-500/10 rotate-12 pointer-events-none" />
         <div className="relative max-w-3xl">
-          <div className="flex items-center gap-2 text-indigo-300 text-sm font-semibold mb-4"><Sparkles className="w-4 h-4" /> {lecture.eyebrow}</div>
-          <h1 className="text-3xl sm:text-5xl font-black tracking-tight text-white mb-4">{Lk20TopicNames[topic]}</h1>
-          <p className="text-lg text-slate-300 leading-relaxed">{lecture.summary}</p>
+          <div className="flex items-center gap-2 text-indigo-300 text-xs sm:text-sm font-semibold mb-3 sm:mb-4"><Sparkles className="w-4 h-4" /> {lecture.eyebrow}</div>
+          <h1 className="text-2xl sm:text-5xl font-black tracking-tight text-white mb-3 sm:mb-4">{Lk20TopicNames[topic]}</h1>
+          <p className="text-sm sm:text-lg text-slate-300 leading-relaxed">{lecture.summary}</p>
         </div>
       </header>
 
-      <section className="rounded-2xl border border-sky-400/30 bg-sky-950/20 p-6 mb-8">
-        <p className="text-xs uppercase tracking-widest text-sky-300 font-bold mb-3">Etter denne leksjonen skal du kunne</p>
-        <div className="grid sm:grid-cols-2 gap-3">{lecture.learningGoals.map((goal) => <div key={goal} className="flex gap-3 text-sm text-sky-100/90"><CheckCircle2 className="w-4 h-4 flex-none text-sky-300 mt-0.5" />{goal}</div>)}</div>
+      <section className="rounded-2xl border border-sky-400/30 bg-sky-950/20 p-4 sm:p-6 mb-6 sm:mb-8">
+        <p className="text-[11px] sm:text-xs uppercase tracking-widest text-sky-300 font-bold mb-3">Etter denne leksjonen skal du kunne</p>
+        <div className="grid sm:grid-cols-2 gap-3">{lecture.learningGoals.map((goal) => <div key={goal} className="flex gap-3 text-xs sm:text-sm text-sky-100/90"><CheckCircle2 className="w-4 h-4 flex-none text-sky-300 mt-0.5" />{goal}</div>)}</div>
       </section>
 
-      <section className="rounded-2xl border border-indigo-400/30 bg-indigo-950/20 p-5 sm:p-6 mb-8">
-        <p className="text-xs uppercase tracking-widest text-indigo-300 font-bold mb-2">Slik går du videre</p>
-        <p className="text-sm text-slate-200 leading-relaxed">Denne modulen består av {lessonCount} korte leksjoner. Bruk leksjonsstegene under til å bygge forståelse, og avslutt med en praktisk anvendelse før du tester deg med oppgaver.</p>
+      <section className="rounded-2xl border border-indigo-400/30 bg-indigo-950/20 p-4 sm:p-6 mb-6 sm:mb-8">
+        <p className="text-[11px] sm:text-xs uppercase tracking-widest text-indigo-300 font-bold mb-2">Slik går du videre</p>
+        <p className="text-xs sm:text-sm text-slate-200 leading-relaxed">Denne modulen består av {lessonCount} korte leksjoner. Bruk leksjonsstegene under til å bygge forståelse, og avslutt med en praktisk anvendelse før du tester deg med oppgaver.</p>
       </section>
 
-      <nav aria-label="Leksjoner i modulen" className="rounded-2xl border border-slate-700 bg-slate-900/70 p-3 mb-8">
-        <div className="flex flex-wrap gap-2">
+      <nav aria-label="Leksjoner i modulen" className="rounded-2xl border border-slate-700 bg-slate-900/70 p-2 sm:p-3 mb-6 sm:mb-8 overflow-x-auto">
+        <div className="flex flex-nowrap sm:flex-wrap gap-2 min-w-max sm:min-w-0">
           {Array.from({ length: lessonCount }, (_, index) => {
             const lessonNumber = index + 1;
-            return <button key={lessonNumber} onClick={() => goToLesson(lessonNumber)} aria-current={activeLesson === lessonNumber ? 'step' : undefined} className={`rounded-lg px-3 py-2 text-sm font-semibold transition-colors ${activeLesson === lessonNumber ? 'bg-indigo-600 text-white' : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white'}`}>Leksjon {lessonNumber}: {lessonNames[index]}</button>;
+            return <button key={lessonNumber} onClick={() => goToLesson(lessonNumber)} aria-current={activeLesson === lessonNumber ? 'step' : undefined} className={`rounded-lg px-3 py-2 text-xs sm:text-sm font-semibold transition-colors shrink-0 ${activeLesson === lessonNumber ? 'bg-indigo-600 text-white' : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white'}`}>Leksjon {lessonNumber}: {lessonNames[index]}</button>;
           })}
         </div>
       </nav>

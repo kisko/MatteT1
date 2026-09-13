@@ -63,12 +63,12 @@ export const QuizView: React.FC<QuizViewProps> = ({
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8 w-full min-w-0 overflow-hidden">
       {/* Back Button & Header */}
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+      <div className="mb-4 sm:mb-6 flex flex-wrap items-center justify-between gap-2.5">
         <button
           onClick={onGoHome}
-          className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 text-xs font-semibold flex items-center gap-2 transition-colors"
+          className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 text-xs font-semibold flex items-center gap-2 transition-colors shrink-0"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Avbryt økt</span>
@@ -78,8 +78,8 @@ export const QuizView: React.FC<QuizViewProps> = ({
           Øving: {session.topicTitle.replaceAll('_', ' ')}
         </span>
         {isExamMode && (
-          <span className={`text-sm font-bold ${remainingSeconds < 300 ? 'text-rose-300' : 'text-amber-300'}`}>
-            {Math.floor(remainingSeconds / 60).toString().padStart(2, '0')}:{(remainingSeconds % 60).toString().padStart(2, '0')}
+          <span className={`text-xs sm:text-sm font-bold shrink-0 ${remainingSeconds < 300 ? 'text-rose-300' : 'text-amber-300'}`}>
+            Tid igjen: {Math.floor(remainingSeconds / 60).toString().padStart(2, '0')}:{(remainingSeconds % 60).toString().padStart(2, '0')}
           </span>
         )}
       </div>
