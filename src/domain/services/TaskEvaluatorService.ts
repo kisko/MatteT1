@@ -73,7 +73,9 @@ export class TaskEvaluatorService {
       }
 
       const submittedNum = actual.value;
-      const tolerance = expected.tolerance ?? 0.001;
+      const tolerance =
+        expected.tolerance ??
+        (expected.precision === undefined ? 0.001 : 0.5 * 10 ** -expected.precision);
       const diff = Math.abs(expected.value - submittedNum);
 
       if (diff <= tolerance) {

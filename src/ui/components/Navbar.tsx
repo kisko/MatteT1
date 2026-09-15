@@ -1,5 +1,5 @@
 import React from 'react';
-import { Flame, Award, Sun, Moon, BookOpen, TableProperties } from 'lucide-react';
+import { Flame, Award, Sun, Moon, BookOpen, TableProperties, FlaskConical } from 'lucide-react';
 
 interface NavbarProps {
   streakDays: number;
@@ -9,6 +9,8 @@ interface NavbarProps {
   onGoHome: () => void;
   onOpenMatrix: () => void;
   isMatrixActive: boolean;
+  onOpenLab: () => void;
+  isLabActive: boolean;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -19,6 +21,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   onGoHome,
   onOpenMatrix,
   isMatrixActive,
+  onOpenLab,
+  isLabActive,
 }) => {
   return (
     <header className="sticky top-0 z-30 w-full backdrop-blur-md bg-slate-900/90 dark:bg-slate-900/90 border-b border-slate-800 dark:border-slate-800 transition-colors overflow-hidden">
@@ -61,6 +65,19 @@ export const Navbar: React.FC<NavbarProps> = ({
             aria-label="Åpne kompetansematrisen"
           >
             <TableProperties className="w-4 h-4 sm:w-5 sm:h-5" />
+          </button>
+
+          <button
+            onClick={onOpenLab}
+            className={`p-2 rounded-xl border transition-colors ${
+              isLabActive
+                ? 'border-cyan-400 bg-cyan-500/20 text-cyan-200'
+                : 'border-slate-700 bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white'
+            }`}
+            title="Åpne matematisk laboratorium"
+            aria-label="Åpne matematisk laboratorium"
+          >
+            <FlaskConical className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
 
           {/* Streak Counter */}

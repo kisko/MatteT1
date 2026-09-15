@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Check, X, HelpCircle, FileText, ArrowRight, RefreshCw } from 'lucide-react';
+import { Check, X, HelpCircle, FileText, ArrowRight, RefreshCw, RotateCcw } from 'lucide-react';
 import { Task } from '../../domain/model/task/Task.js';
 import { AnswerValue } from '../../domain/model/task/value-objects/StudentAnswer.js';
 import { ExtendedEvaluationResult } from '../../domain/services/TaskEvaluatorService.js';
@@ -35,20 +35,43 @@ export const QuizCard: React.FC<QuizCardProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [currentHintLevel, setCurrentHintLevel] = useState(0);
   const [showSolutionModal, setShowSolutionModal] = useState(false);
+  const [inputError, setInputError] = useState<string | null>(null);
 
   const hints = HintGeneratorService.getHintsForTask(task);
+  const answerType = task.correctAnswer.type;
+  const numericPrecision = answerType === 'numeric' ? task.correctAnswer.precision : undefined;
+  const answerGuidance =
+    answerType === 'numeric'
+      ? `Skriv bare tallet. Du kan bruke komma eller punktum som desimalskilletegn.${
+          numericPrecision === undefined
+            ? ''
+            : ` Oppgaven forventer ${numericPrecision} desimal${numericPrecision === 1 ? '' : 'er'}.`
+        }`
+      : answerType === 'expression'
+      ? 'Skriv et eksakt uttrykk når det er mulig, for eksempel x + 2, (x - 3)(x + 3) eller sqrt(2).'
+      : answerType === 'text'
+      ? 'Skriv et kort svar med egne ord.'
+      : 'Velg alternativet som svarer best på oppgaven.';
 
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!inputValue.trim() || isSubmitting) return;
+    if ((!inputValue.trim() && selectedOptionIndex === null) || isSubmitting) return;
 
     setIsSubmitting(true);
+    setInputError(null);
 
     let answerValue: AnswerValue;
     switch (task.correctAnswer.type) {
-      case 'numeric':
-        answerValue = { type: 'numeric', value: parseFloat(inputValue.replace(',', '.')) };
+      case 'numeric': {
+        const numericValue = Number(inputValue.replace(',', '.'));
+        if (!Number.isFinite(numericValue)) {
+          setInputError('Skriv inn et gyldig tall, for eksempel 3,14 eller -2.');
+          setIsSubmitting(false);
+          return;
+        }
+        answerValue = { type: 'numeric', value: numericValue };
         break;
+      }
       case 'multipleChoice':
         answerValue = {
           type: 'multipleChoice',
@@ -65,6 +88,11 @@ export const QuizCard: React.FC<QuizCardProps> = ({
     const res = await onSubmitAnswer(answerValue, currentHintLevel, reasoning);
     setEvaluation(res);
     setIsSubmitting(false);
+  };
+
+  const handleRetry = () => {
+    setEvaluation(null);
+    setInputError(null);
   };
 
   const handleNextClick = () => {
@@ -148,8 +176,13 @@ export const QuizCard: React.FC<QuizCardProps> = ({
             <input
               type="text"
               value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
+              onChange={(e) => {
+                setInputValue(e.target.value);
+                setInputError(null);
+              }}
               disabled={isExamMode ? Boolean(evaluation) : evaluation?.result.isCorrect}
+              inputMode={answerType === 'numeric' ? 'decimal' : 'text'}
+              aria-describedby="answer-guidance"
               placeholder={
                 task.correctAnswer.type === 'numeric'
                   ? 'f.eks. 3.14 eller 4'
@@ -186,6 +219,14 @@ export const QuizCard: React.FC<QuizCardProps> = ({
             )}
           </button>
         </div>
+        <p id="answer-guidance" className="mt-2 text-xs leading-relaxed text-slate-400">
+          {answerGuidance}
+        </p>
+        {inputError && (
+          <p className="mt-2 text-sm text-rose-300" role="alert">
+            {inputError}
+          </p>
+        )}
       </form>
 
       {/* Evaluation Feedback */}
@@ -210,6 +251,14 @@ export const QuizCard: React.FC<QuizCardProps> = ({
                   <MathView latex={evaluation.result.feedbackLatex} />
                 </div>
               </div>
+              <button
+                type="button"
+                onClick={handleRetry}
+                className="mt-3 inline-flex items-center gap-2 rounded-xl border border-slate-700 bg-slate-800 px-3.5 py-2 text-xs font-semibold text-slate-200 transition-colors hover:bg-slate-700"
+              >
+                <RotateCcw className="h-4 w-4" />
+                Prøv igjen
+              </button>
             </div>
           )}
 

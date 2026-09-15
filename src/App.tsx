@@ -20,6 +20,7 @@ import { APP_VERSION } from './version.js';
 
 const QuizView = lazy(() => import('./ui/views/QuizView.js').then((module) => ({ default: module.QuizView })));
 const LectureView = lazy(() => import('./ui/views/LectureView.js').then((module) => ({ default: module.LectureView })));
+const ExperimentalLabView = lazy(() => import('./ui/views/ExperimentalLabView.js').then((module) => ({ default: module.ExperimentalLabView })));
 
 const taskRepo = new InMemoryTaskRepository();
 const progressRepo = new IndexedDbProgressRepository();
@@ -27,7 +28,7 @@ const startQuizUseCase = new StartQuizUseCase(taskRepo);
 const submitAnswerUseCase = new SubmitAnswerUseCase(progressRepo);
 
 export const App: React.FC = () => {
-  const [currentView, setCurrentView] = useState<'dashboard' | 'matrix' | 'lecture' | 'quiz'>('dashboard');
+  const [currentView, setCurrentView] = useState<'dashboard' | 'matrix' | 'lecture' | 'lab' | 'quiz'>('dashboard');
   const [progress, setProgress] = useState<UserProgress>(UserProgress.createEmpty());
   const [activeSession, setActiveSession] = useState<QuizSession | null>(null);
   const [activeTopic, setActiveTopic] = useState<Lk20Topic1T | null>(null);
@@ -212,6 +213,8 @@ export const App: React.FC = () => {
         onStartPractice={() => handleStartTopic(activeTopic)}
       />
     );
+  } else if (currentView === 'lab') {
+    activeContent = <ExperimentalLabView onBack={handleGoHome} />;
   } else if (activeSession) {
     activeContent = (
       <QuizView
@@ -233,6 +236,8 @@ export const App: React.FC = () => {
         onGoHome={handleGoHome}
         onOpenMatrix={() => setCurrentView('matrix')}
         isMatrixActive={currentView === 'matrix'}
+        onOpenLab={() => setCurrentView('lab')}
+        isLabActive={currentView === 'lab'}
       />
 
       <main>

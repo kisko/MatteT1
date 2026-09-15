@@ -2,6 +2,7 @@ import { Result } from '../shared/Result.js';
 import { createTaskError, TaskError } from '../model/task/errors/TaskError.js';
 import { StudentAnswer } from '../model/task/value-objects/StudentAnswer.js';
 import { EvaluationResult } from '../model/task/value-objects/EvaluationResult.js';
+import { evaluate } from 'mathjs';
 
 export interface AlgebraEvaluatorOptions {
   /** Toleranse for numerisk stikkprøve-evaluering */
@@ -20,8 +21,12 @@ export class AlgebraEvaluatorService {
    */
   public static normalizeExpression(expr: string): string {
     return expr
+      .replace(/^\$+|\$+$/g, '')
+      .replace(/\\left|\\right/g, '')
       .replace(/\\frac\{([^}]+)\}\{([^}]+)\}/g, '(($1)/($2))') // Konverter \frac{a}{b} til ((a)/(b))
       .replace(/\\cdot|\\times/g, '*') // Standardiser multiplikasjon
+      .replace(/\\sqrt\{([^{}]+)\}/g, 'sqrt($1)')
+      .replace(/\\,|\\;/g, '')
       .replace(/\s+/g, '') // Fjern alt mellomrom
       .replace(/\^\{([^}]+)\}/g, '^$1'); // \^{2} -> ^2
   }
@@ -67,7 +72,8 @@ export class AlgebraEvaluatorService {
       // Generer tilfeldige testverdier unna 0 og 1 for å unngå singulære punkter/nærmest 0-divisjon
       const scope: Record<string, number> = {};
       for (const v of variables) {
-        scope[v] = 2 + Math.random() * 8 + i * 1.5;
+        // Faste prøveverdier gjør vurderingen reproduserbar og testbar.
+        scope[v] = 2 + ((i * 3) % 9);
       }
 
       try {
@@ -128,29 +134,23 @@ export class AlgebraEvaluatorService {
   }
 
   /**
-   * Enkel parser/evaluator for grunnleggende algebragrunner i JS (støtter +, -, *, /, ^, paranteser).
+   * Trygg evaluator for grunnleggende algebrauttrykk.
    */
-  private static evaluateSimpleJsExpr(expr: string, scope: Record<string, number>): number {
-    let jsExpr = expr;
+  private static evaluateSimpleJsExpr(
+    expr: string,
+    scope: Record<string, number>
+  ): number {
+    let mathExpression = expr;
 
-    // Sett inn eksplisitt multiplikasjon først: 2(x) -> 2*(x), (a)(b) -> (a)*(b), 6x -> 6*x
-    jsExpr = jsExpr
+    // MathJS støtter ikke alle skrivemåtene elevene bruker, så normaliser implisitt multiplikasjon.
+    mathExpression = mathExpression
       .replace(/(\d|\))\(/g, '$1*(')
       .replace(/\)(\d|\()/g, ')*$1')
       .replace(/(\d)([a-zA-Z])/g, '$1*$2')
-      .replace(/([a-zA-Z])(\d)/g, '$1*$2')
-      .replace(/\^/g, '**');
+      .replace(/([a-zA-Z])(\d)/g, '$1*$2');
 
-    // Erstatt variabler med verdier trygt
-    for (const [varName, val] of Object.entries(scope)) {
-      const regex = new RegExp(`(?<![a-zA-Z])${varName}(?![a-zA-Z])`, 'g');
-      jsExpr = jsExpr.replace(regex, `(${val})`);
-    }
-
-    // Bruk Function for trygg begrenset evaluering i testmiljø
-    // eslint-disable-next-line no-new-func
-    const fn = new Function(`return (${jsExpr});`);
-    return Number(fn());
+    const value = evaluate(mathExpression, scope);
+    return typeof value === 'number' ? value : Number(value);
   }
 }
 

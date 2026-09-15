@@ -15,6 +15,17 @@ describe('TaskEvaluatorService', () => {
     }
   });
 
+  it('skal bruke oppgitt antall desimaler når toleranse ikke er angitt', () => {
+    const expected = { type: 'numeric' as const, value: 2.35, precision: 2 };
+    const answer = StudentAnswer.create({ type: 'numeric', value: 2.354 }).value;
+
+    const res = TaskEvaluatorService.evaluateWithAnalysis(expected, answer);
+    expect(res.isSuccess).toBe(true);
+    if (res.isSuccess) {
+      expect(res.value.result.isCorrect).toBe(true);
+    }
+  });
+
   it('skal oppdage fortegnsfeil for numeriske svar', () => {
     const expected = { type: 'numeric' as const, value: 5 };
     const answer = StudentAnswer.create({ type: 'numeric', value: -5 }).value;

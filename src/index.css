@@ -131,6 +131,25 @@ html:not(.dark) .light-hero [class~="text-indigo-300"] {
 
 .math-view-inline {
   @apply inline-block px-1;
+  white-space: nowrap;
+  word-break: normal;
+  overflow-wrap: normal;
+}
+
+.math-view-inline .katex,
+.math-view-inline .katex * {
+  white-space: nowrap;
+}
+
+.representation-math {
+  display: block;
+  min-width: max-content;
+  white-space: nowrap;
+  font-size: clamp(0.95rem, 1.8vw, 1.15rem);
+}
+
+.representation-math .katex {
+  font-size: 1em;
 }
 
 .math-view-error {

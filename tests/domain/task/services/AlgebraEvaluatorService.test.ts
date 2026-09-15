@@ -38,6 +38,18 @@ describe('AlgebraEvaluatorService', () => {
       const isEquiv = AlgebraEvaluatorService.areEquivalent(fasit, feilSvar);
       expect(isEquiv).toBe(false);
     });
+
+    it('skal godta kvadratrot skrevet som LaTeX eller funksjon', () => {
+      expect(AlgebraEvaluatorService.areEquivalent('\\sqrt{2}', 'sqrt(2)')).toBe(true);
+    });
+
+    it('skal gi samme resultat hver gang ekvivalens vurderes', () => {
+      const results = Array.from({ length: 10 }, () =>
+        AlgebraEvaluatorService.areEquivalent('x^2 + 2x + 1', '(x + 1)^2')
+      );
+
+      expect(results).toEqual(Array(10).fill(true));
+    });
   });
 
   describe('evaluateAlgebraicAnswer', () => {

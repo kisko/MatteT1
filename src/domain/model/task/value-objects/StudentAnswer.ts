@@ -2,7 +2,7 @@ import { Result } from '../../../shared/Result.js';
 import { createTaskError, TaskError } from '../errors/TaskError.js';
 
 export type AnswerValue =
-  | { type: 'numeric'; value: number; tolerance?: number }
+  | { type: 'numeric'; value: number; tolerance?: number; precision?: number }
   | { type: 'expression'; latex: string }
   | { type: 'multipleChoice'; selectedOptionIndex: number; options?: string[] }
   | { type: 'text'; text: string };
