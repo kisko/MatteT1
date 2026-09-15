@@ -505,6 +505,97 @@ const TriangleVisual: React.FC<{ visual: Extract<StepVisual, { kind: 'triangle' 
   );
 };
 
+const GeneralTriangleVisual: React.FC<{ visual: Extract<StepVisual, { kind: 'generalTriangle' }> }> = ({
+  visual,
+}) => {
+  // Faste hjørner: en tydelig ikke-rettvinklet trekant, så figuren aldri
+  // antyder at setningene krever en rett vinkel.
+  const vertexA = { x: 86, y: HEIGHT - 54 };
+  const vertexB = { x: WIDTH - 86, y: HEIGHT - 54 };
+  const vertexC = { x: 196, y: 44 };
+  const [angleA, angleB, angleC] = visual.angleLabels;
+  const [sideA, sideB, sideC] = visual.sideLabels;
+
+  const sideTone = (side: 'a' | 'b' | 'c'): VisualTone => {
+    if (visual.highlight === 'sinePair') return side === 'a' ? 'correct' : side === 'b' ? 'accent' : 'muted';
+    if (visual.highlight === 'includedAngle') return side === 'c' ? 'error' : 'correct';
+    return side === 'c' ? 'muted' : 'correct';
+  };
+
+  const midpoint = (from: { x: number; y: number }, to: { x: number; y: number }) => ({
+    x: (from.x + to.x) / 2,
+    y: (from.y + to.y) / 2,
+  });
+
+  const sideAMid = midpoint(vertexB, vertexC);
+  const sideBMid = midpoint(vertexA, vertexC);
+  const sideCMid = midpoint(vertexA, vertexB);
+
+  return (
+    <>
+      <polygon
+        points={`${vertexA.x},${vertexA.y} ${vertexB.x},${vertexB.y} ${vertexC.x},${vertexC.y}`}
+        fill={toneColor.primary}
+        fillOpacity="0.08"
+        stroke={toneColor.primary}
+        strokeWidth="2"
+      />
+
+      <line x1={vertexB.x} y1={vertexB.y} x2={vertexC.x} y2={vertexC.y} stroke={toneColor[sideTone('a')]} strokeWidth="4" />
+      <line x1={vertexA.x} y1={vertexA.y} x2={vertexC.x} y2={vertexC.y} stroke={toneColor[sideTone('b')]} strokeWidth="4" />
+      <line x1={vertexA.x} y1={vertexA.y} x2={vertexB.x} y2={vertexB.y} stroke={toneColor[sideTone('c')]} strokeWidth="4" />
+
+      {visual.highlight === 'area' && (
+        <line
+          x1={vertexC.x}
+          y1={vertexC.y}
+          x2={vertexC.x}
+          y2={vertexA.y}
+          stroke={toneColor.accent}
+          strokeWidth="2"
+          strokeDasharray="5 4"
+        />
+      )}
+
+      {[
+        { vertex: vertexA, label: angleA, offsetX: -4, offsetY: -14 },
+        { vertex: vertexB, label: angleB, offsetX: 4, offsetY: -14 },
+        { vertex: vertexC, label: angleC, offsetX: 0, offsetY: 20 },
+      ].map(({ vertex, label, offsetX, offsetY }) => (
+        <text
+          key={`angle-${label}`}
+          x={vertex.x + offsetX}
+          y={vertex.y + offsetY}
+          textAnchor="middle"
+          fill={visual.highlight === 'includedAngle' && label === angleC ? toneColor.error : '#ddd6fe'}
+          fontSize="14"
+          fontWeight="700"
+        >
+          {label}
+        </text>
+      ))}
+
+      {[
+        { point: sideAMid, label: sideA, tone: sideTone('a'), dx: 16, dy: 0 },
+        { point: sideBMid, label: sideB, tone: sideTone('b'), dx: -18, dy: 0 },
+        { point: sideCMid, label: sideC, tone: sideTone('c'), dx: 0, dy: 20 },
+      ].map(({ point, label, tone, dx, dy }) => (
+        <text
+          key={`side-${label}`}
+          x={point.x + dx}
+          y={point.y + dy}
+          textAnchor="middle"
+          fill={toneColor[tone]}
+          fontSize="13"
+          fontWeight="600"
+        >
+          {label}
+        </text>
+      ))}
+    </>
+  );
+};
+
 const GrowthVisual: React.FC<{ visual: Extract<StepVisual, { kind: 'growth' }> }> = ({ visual }) => {
   const values = Array.from(
     { length: visual.periods + 1 },
@@ -629,6 +720,12 @@ export const StepVisualCanvas: React.FC<StepVisualCanvasProps> = ({ visual }) =>
       return (
         <CanvasFrame label="Rettvinklet trekant med sidene markert" caption={visual.caption}>
           <TriangleVisual visual={visual} />
+        </CanvasFrame>
+      );
+    case 'generalTriangle':
+      return (
+        <CanvasFrame label="Vilkårlig trekant med sider og vinkler markert" caption={visual.caption}>
+          <GeneralTriangleVisual visual={visual} />
         </CanvasFrame>
       );
     case 'growth':

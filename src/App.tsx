@@ -17,6 +17,7 @@ import { ProgressUpdatedDomainEvent } from './domain/events/ProgressUpdatedDomai
 import { QuizCompletedDomainEvent } from './domain/events/QuizCompletedDomainEvent.js';
 import { GuidedLessonCompletedDomainEvent } from './domain/events/GuidedLessonCompletedDomainEvent.js';
 import { GuidedSession } from './domain/model/guided/GuidedSession.js';
+import type { PracticeRun } from './domain/model/guided/PracticeRun.js';
 import { StartGuidedLessonUseCase } from './application/use-cases/StartGuidedLessonUseCase.js';
 import { RecordGuidedProgressUseCase } from './application/use-cases/RecordGuidedProgressUseCase.js';
 import type { LabStation } from './ui/views/ExperimentalLabView.js';
@@ -43,6 +44,7 @@ export const App: React.FC = () => {
   const [isDark, setIsDark] = useState<boolean>(true);
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
   const [guidedSession, setGuidedSession] = useState<GuidedSession | null>(null);
+  const [practiceRun, setPracticeRun] = useState<PracticeRun | null>(null);
   const [labStation, setLabStation] = useState<LabStation>('guided');
 
   const addToast = useCallback((toast: Omit<ToastMessage, 'id'>) => {
@@ -227,6 +229,47 @@ export const App: React.FC = () => {
     setGuidedSession(null);
   };
 
+  /**
+   * Oppgavemalene lastes først når eleven faktisk skal øve. De er ren
+   * innholdsdata, og hører ikke hjemme i den første nedlastingen.
+   */
+  const handleStartPractice = async (templateId: string) => {
+    const { StartPracticeRunUseCase } = await import(
+      './application/use-cases/StartPracticeRunUseCase.js'
+    );
+
+    // Frøet varierer per økt, slik at eleven ikke starter på samme variant
+    // hver gang, men er fortsatt et helt tall som kan gjenskapes.
+    const startSeed = 1 + (Math.floor(Date.now() / 1000) % 500);
+    const runResult = new StartPracticeRunUseCase().execute(templateId, startSeed);
+
+    if (runResult.isSuccess) {
+      setGuidedSession(null);
+      setPracticeRun(runResult.value);
+    } else {
+      addToast({
+        type: 'info',
+        title: 'Kunne ikke starte øvingen',
+        description: runResult.error.message,
+      });
+    }
+  };
+
+  /**
+   * Hver handling i en øvingsserie gir en ny sesjonstilstand. Progresjonen
+   * lagres per fullført steg, akkurat som i den veiledede leksjonen.
+   */
+  const handlePracticeSessionProgress = async (nextSession: GuidedSession) => {
+    const outcome = await recordGuidedProgressUseCase.execute({ session: nextSession });
+    if (outcome.isSuccess && outcome.value.recordedSteps > 0) {
+      setProgress(outcome.value.progress);
+    }
+  };
+
+  const handleExitPractice = () => {
+    setPracticeRun(null);
+  };
+
   const handleRestartQuiz = async () => {
     if (activeSession) {
       if (activeSession.mode === 'exam') {
@@ -273,9 +316,14 @@ export const App: React.FC = () => {
         station={labStation}
         onStationChange={setLabStation}
         session={guidedSession}
+        practiceRun={practiceRun}
         onStartTopic={handleStartGuidedTopic}
         onSessionChange={handleGuidedSessionChange}
         onExitSession={handleExitGuidedSession}
+        onStartPractice={handleStartPractice}
+        onPracticeRunChange={setPracticeRun}
+        onPracticeSessionProgress={handlePracticeSessionProgress}
+        onExitPractice={handleExitPractice}
         onStartQuiz={handleStartTopic}
         onBack={handleGoHome}
       />

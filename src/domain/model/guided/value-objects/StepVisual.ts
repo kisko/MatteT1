@@ -97,6 +97,18 @@ export type StepVisual =
       readonly caption: string;
     }
   | {
+      /**
+       * Vilkårlig trekant for sinussetningen, cosinussetningen og
+       * arealsetningen. En rettvinklet figur ville gitt inntrykk av at
+       * setningene bare gjelder rettvinklede trekanter.
+       */
+      readonly kind: 'generalTriangle';
+      readonly angleLabels: readonly [string, string, string];
+      readonly sideLabels: readonly [string, string, string];
+      readonly highlight: 'sinePair' | 'includedAngle' | 'area';
+      readonly caption: string;
+    }
+  | {
       readonly kind: 'growth';
       readonly startValue: number;
       readonly growthFactor: number;
@@ -206,6 +218,14 @@ export function validateVisual(visual: StepVisual): Result<StepVisual, GuidedErr
     case 'triangle': {
       if (visual.angleDegrees <= 0 || visual.angleDegrees >= 90) {
         return fail('Vinkelen i en rettvinklet trekant må ligge strengt mellom 0 og 90 grader.');
+      }
+      return Result.ok(visual);
+    }
+
+    case 'generalTriangle': {
+      const labels = [...visual.angleLabels, ...visual.sideLabels];
+      if (labels.some((label) => label.trim().length === 0)) {
+        return fail('Alle vinkler og sider i trekanten må ha en merkelapp.');
       }
       return Result.ok(visual);
     }

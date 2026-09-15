@@ -9,6 +9,7 @@ export enum MisconceptionType {
   TRIG_RATIO_MIXUP = 'TRIG_RATIO_MIXUP',         // Byttet om sinus, cosinus og tangens
   UNIT_INTERPRETATION_ERROR = 'UNIT_INTERPRETATION',// Regnet riktig, men tolket svaret feil i situasjonen
   PROBABILITY_COMBINATION_ERROR = 'PROBABILITY_COMBINATION', // La sammen sannsynligheter som skulle ganges
+  COMBINATORICS_ORDER_ERROR = 'COMBINATORICS_ORDER',         // Tok med rekkefølgen når den ikke betyr noe (eller omvendt)
   NONE = 'NONE',
 }
 
@@ -71,6 +72,11 @@ export const MISCONCEPTION_INFO: Record<
   [MisconceptionType.PROBABILITY_COMBINATION_ERROR]: {
     title: 'La sammen i stedet for å gange',
     tip: 'Spør: skjer hendelsene *samtidig* (gang) eller er de *alternativer* (legg sammen)?',
+    defaultTopic: 'SANNSYNLIGHET',
+  },
+  [MisconceptionType.COMBINATORICS_ORDER_ERROR]: {
+    title: 'Rekkefølgen ble tatt med feil',
+    tip: 'Spør alltid først: betyr rekkefølgen noe? Teller du utvalg, må du dele bort rekkefølgene.',
     defaultTopic: 'SANNSYNLIGHET',
   },
 };

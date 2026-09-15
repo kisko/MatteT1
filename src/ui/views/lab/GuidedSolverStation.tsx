@@ -1,13 +1,12 @@
 import React, { useCallback } from 'react';
-import { ArrowLeft, Eye, Lightbulb } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { GuidedSession } from '../../../domain/model/guided/GuidedSession.js';
 import { Lk20TopicNames } from '../../../domain/model/task/value-objects/Lk20Category.js';
 import { Result } from '../../../domain/shared/Result.js';
 import { GuidedError } from '../../../domain/model/guided/errors/GuidedError.js';
 import { MathView } from '../../MathView.js';
 import { StepRail } from '../../components/guided/StepRail.js';
-import { StepChoiceList } from '../../components/guided/StepChoiceList.js';
-import { StepVisualCanvas } from '../../components/guided/StepVisualCanvas.js';
+import { PracticeStepPanel } from '../../components/guided/PracticeStepPanel.js';
 import { FeedbackBanner } from '../../components/guided/FeedbackBanner.js';
 import { WorkedExample } from '../../components/guided/WorkedExample.js';
 import { ErrorHuntBoard } from '../../components/guided/ErrorHuntBoard.js';
@@ -112,51 +111,14 @@ export const GuidedSolverStation: React.FC<GuidedSolverStationProps> = ({
         )}
 
         {session.stage === 'practice' && currentStep && currentRecord && (
-          <>
-            <section className="rounded-2xl border border-slate-700/80 bg-slate-900/70 p-4 sm:p-5">
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-cyan-400">
-                  Steg {currentStep.stepNumber} av {walkthrough.stepCount}
-                </p>
-                <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-                  {walkthrough.problemLatex && <MathView latex={walkthrough.problemLatex} />}
-                </p>
-              </div>
-              <h3 className="mt-2 text-lg font-bold leading-snug text-white sm:text-xl">
-                <MathView latex={currentStep.prompt} />
-              </h3>
-              <div className="mt-3">
-                <StepVisualCanvas visual={currentStep.visual} />
-              </div>
-            </section>
-
-            <section className="rounded-2xl border border-cyan-400/20 bg-slate-900/60 p-4 sm:p-5">
-              <p className="mb-3 text-sm font-bold text-slate-200">Velg den neste linjen i utregningen</p>
-              <StepChoiceList
-                options={currentStep.options}
-                chosenWrongIds={currentRecord.wrongOptionIds}
-                onChoose={(optionId) => apply(session.chooseOption(optionId))}
-              />
-              <div className="mt-3 flex flex-wrap gap-2">
-                <button
-                  type="button"
-                  onClick={() => apply(session.useHint())}
-                  disabled={currentRecord.hintUsed}
-                  className="inline-flex items-center gap-1.5 rounded-xl border border-amber-400/40 bg-amber-400/10 px-3 py-2 text-xs font-bold text-amber-200 transition-colors hover:bg-amber-400/20 disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  <Lightbulb className="h-4 w-4" />
-                  {currentRecord.hintUsed ? 'Hint brukt' : 'Hent hint'}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => apply(session.revealCurrentStep())}
-                  className="inline-flex items-center gap-1.5 rounded-xl border border-slate-600 bg-slate-800 px-3 py-2 text-xs font-bold text-slate-300 transition-colors hover:bg-slate-700"
-                >
-                  <Eye className="h-4 w-4" /> Vis meg steget
-                </button>
-              </div>
-            </section>
-          </>
+          <PracticeStepPanel
+            session={session}
+            step={currentStep}
+            record={currentRecord}
+            onChoose={(optionId) => apply(session.chooseOption(optionId))}
+            onUseHint={() => apply(session.useHint())}
+            onReveal={() => apply(session.revealCurrentStep())}
+          />
         )}
 
         {session.stage === 'hunt' && session.errorHunt && (
