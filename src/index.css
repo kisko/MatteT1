@@ -169,3 +169,79 @@ html:not(.dark) .light-hero [class~="text-indigo-300"] {
   font-size: clamp(0.78rem, 3.2vw, 1.2rem);
   max-width: 100%;
 }
+
+/* ---------------------------------------------------------------------------
+   Mesterlab: bevegelse som forklarer.
+   Hver animasjon har en pedagogisk jobb – en ny linje glir inn, en graf
+   tegnes, et resultat spretter fram. Ingenting beveger seg for pynt, og alt
+   skrus av for brukere som har bedt om mindre bevegelse.
+   --------------------------------------------------------------------------- */
+
+@keyframes guidedFadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes guidedSlideIn {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes guidedPopIn {
+  0% { opacity: 0; transform: scale(0.92); }
+  60% { opacity: 1; transform: scale(1.03); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes guidedDrawIn {
+  from { stroke-dasharray: 1200; stroke-dashoffset: 1200; }
+  to { stroke-dasharray: 1200; stroke-dashoffset: 0; }
+}
+
+@keyframes guidedGrowUp {
+  from { transform: scaleY(0); }
+  to { transform: scaleY(1); }
+}
+
+@keyframes guidedPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgb(34 211 238 / 0.45); }
+  50% { box-shadow: 0 0 0 5px rgb(34 211 238 / 0); }
+}
+
+.animate-fadeIn,
+.guided-fade-in {
+  animation: guidedFadeIn 0.28s ease-out both;
+}
+
+.guided-slide-in {
+  animation: guidedSlideIn 0.36s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.guided-pop-in {
+  animation: guidedPopIn 0.34s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.guided-draw-in {
+  animation: guidedDrawIn 0.75s ease-out both;
+}
+
+.guided-grow-up {
+  transform-origin: bottom;
+  animation: guidedGrowUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.guided-pulse {
+  animation: guidedPulse 2s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-fadeIn,
+  .guided-fade-in,
+  .guided-slide-in,
+  .guided-pop-in,
+  .guided-draw-in,
+  .guided-grow-up,
+  .guided-pulse {
+    animation: none;
+  }
+}

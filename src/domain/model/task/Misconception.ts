@@ -6,6 +6,9 @@ export enum MisconceptionType {
   EXPONENT_RULE_ERROR = 'EXPONENT_RULE',         // Feil potensregel (x^a * x^b = x^(a*b))
   DERIVATIVE_POWER_RULE = 'DERIVATIVE_POWER_RULE',// Feil ved derivasjon av x^n
   LOGARITHM_RULE_ERROR = 'LOGARITHM_RULE_ERROR', // Feil ved logaritmeregler lg(a*b) / lg(a+b)
+  TRIG_RATIO_MIXUP = 'TRIG_RATIO_MIXUP',         // Byttet om sinus, cosinus og tangens
+  UNIT_INTERPRETATION_ERROR = 'UNIT_INTERPRETATION',// Regnet riktig, men tolket svaret feil i situasjonen
+  PROBABILITY_COMBINATION_ERROR = 'PROBABILITY_COMBINATION', // La sammen sannsynligheter som skulle ganges
   NONE = 'NONE',
 }
 
@@ -54,6 +57,21 @@ export const MISCONCEPTION_INFO: Record<
     title: 'Feil logaritmeregel',
     tip: 'Logaritmen til et produkt er summen av logaritmene: $\\lg(a \\cdot b) = \\lg(a) + \\lg(b)$.',
     defaultTopic: 'TALL_OG_ALGEBRA',
+  },
+  [MisconceptionType.TRIG_RATIO_MIXUP]: {
+    title: 'Byttet om trigonometrisk forhold',
+    tip: 'Finn ut hvilke to sider du kjenner først, og velg forholdet etterpå: SOH-CAH-TOA.',
+    defaultTopic: 'TRIGONOMETRI',
+  },
+  [MisconceptionType.UNIT_INTERPRETATION_ERROR]: {
+    title: 'Svaret ble ikke tolket i situasjonen',
+    tip: 'Skriv alltid svaret med enhet, og sjekk om tallet kan gi mening i den virkelige situasjonen.',
+    defaultTopic: 'MODELLERING_OG_PROBLEMSLOYSING',
+  },
+  [MisconceptionType.PROBABILITY_COMBINATION_ERROR]: {
+    title: 'La sammen i stedet for å gange',
+    tip: 'Spør: skjer hendelsene *samtidig* (gang) eller er de *alternativer* (legg sammen)?',
+    defaultTopic: 'SANNSYNLIGHET',
   },
 };
 

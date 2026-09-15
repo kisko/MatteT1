@@ -15,6 +15,11 @@ import { Task } from './domain/model/task/Task.js';
 import { DomainEventPublisher } from './domain/events/DomainEventPublisher.js';
 import { ProgressUpdatedDomainEvent } from './domain/events/ProgressUpdatedDomainEvent.js';
 import { QuizCompletedDomainEvent } from './domain/events/QuizCompletedDomainEvent.js';
+import { GuidedLessonCompletedDomainEvent } from './domain/events/GuidedLessonCompletedDomainEvent.js';
+import { GuidedSession } from './domain/model/guided/GuidedSession.js';
+import { StartGuidedLessonUseCase } from './application/use-cases/StartGuidedLessonUseCase.js';
+import { RecordGuidedProgressUseCase } from './application/use-cases/RecordGuidedProgressUseCase.js';
+import type { LabStation } from './ui/views/ExperimentalLabView.js';
 import { ToastContainer, ToastMessage } from './ui/components/Toast.js';
 import { APP_VERSION } from './version.js';
 
@@ -26,6 +31,8 @@ const taskRepo = new InMemoryTaskRepository();
 const progressRepo = new IndexedDbProgressRepository();
 const startQuizUseCase = new StartQuizUseCase(taskRepo);
 const submitAnswerUseCase = new SubmitAnswerUseCase(progressRepo);
+const startGuidedLessonUseCase = new StartGuidedLessonUseCase();
+const recordGuidedProgressUseCase = new RecordGuidedProgressUseCase(progressRepo);
 
 export const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<'dashboard' | 'matrix' | 'lecture' | 'lab' | 'quiz'>('dashboard');
@@ -35,6 +42,8 @@ export const App: React.FC = () => {
   const [taskCatalog, setTaskCatalog] = useState<readonly Task[]>([]);
   const [isDark, setIsDark] = useState<boolean>(true);
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
+  const [guidedSession, setGuidedSession] = useState<GuidedSession | null>(null);
+  const [labStation, setLabStation] = useState<LabStation>('guided');
 
   const addToast = useCallback((toast: Omit<ToastMessage, 'id'>) => {
     const id = crypto.randomUUID();
@@ -82,9 +91,23 @@ export const App: React.FC = () => {
       }
     );
 
+    const unsubGuided = publisher.subscribe<GuidedLessonCompletedDomainEvent>(
+      'GuidedLessonCompletedDomainEvent',
+      (event) => {
+        addToast({
+          type: event.isFlawless ? 'success' : 'info',
+          title: event.isFlawless ? 'Feilfri gjennomføring! 🏅' : `Økt fullført · ${event.level} 💪`,
+          description: `${event.skillLabel}: ${event.experiencePoints} XP${
+            event.errorHuntSolved ? ' og feiljakten løst' : ''
+          }.`,
+        });
+      }
+    );
+
     return () => {
       unsubProgress();
       unsubQuiz();
+      unsubGuided();
     };
   }, [addToast]);
 
@@ -174,6 +197,36 @@ export const App: React.FC = () => {
     setCurrentView('dashboard');
   };
 
+  const handleStartGuidedTopic = (topic: Lk20Topic1T) => {
+    const sessionResult = startGuidedLessonUseCase.execute(topic);
+    if (sessionResult.isSuccess) {
+      setGuidedSession(sessionResult.value);
+    } else {
+      addToast({
+        type: 'info',
+        title: 'Ingen veiledet utregning ennå',
+        description: sessionResult.error.message,
+      });
+    }
+  };
+
+  /**
+   * Hver handling i Mesterlab gir en ny sesjonstilstand. Vi viser den med én
+   * gang, og lagrer progresjonen for de stegene handlingen fullførte.
+   */
+  const handleGuidedSessionChange = async (nextSession: GuidedSession) => {
+    setGuidedSession(nextSession);
+
+    const outcome = await recordGuidedProgressUseCase.execute({ session: nextSession });
+    if (outcome.isSuccess && outcome.value.recordedSteps > 0) {
+      setProgress(outcome.value.progress);
+    }
+  };
+
+  const handleExitGuidedSession = () => {
+    setGuidedSession(null);
+  };
+
   const handleRestartQuiz = async () => {
     if (activeSession) {
       if (activeSession.mode === 'exam') {
@@ -214,7 +267,19 @@ export const App: React.FC = () => {
       />
     );
   } else if (currentView === 'lab') {
-    activeContent = <ExperimentalLabView onBack={handleGoHome} />;
+    activeContent = (
+      <ExperimentalLabView
+        progress={progress}
+        station={labStation}
+        onStationChange={setLabStation}
+        session={guidedSession}
+        onStartTopic={handleStartGuidedTopic}
+        onSessionChange={handleGuidedSessionChange}
+        onExitSession={handleExitGuidedSession}
+        onStartQuiz={handleStartTopic}
+        onBack={handleGoHome}
+      />
+    );
   } else if (activeSession) {
     activeContent = (
       <QuizView
