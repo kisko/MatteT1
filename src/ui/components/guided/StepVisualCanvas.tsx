@@ -87,7 +87,11 @@ const GraphVisual: React.FC<{ visual: Extract<StepVisual, { kind: 'graph' }> }> 
     const x0 = curve.tangentAtX;
     const y0 = evaluateCurve(curve, x0);
     const slope = evaluateCurveSlope(curve, x0);
-    const reach = (xMax - xMin) * 0.3;
+    const xReach = Math.min(x0 - xMin, xMax - x0, (xMax - xMin) * 0.3);
+    const yReach = slope === 0
+      ? Number.POSITIVE_INFINITY
+      : Math.min((y0 - yMin) / Math.abs(slope), (yMax - y0) / Math.abs(slope));
+    const reach = Math.max(0, Math.min(xReach, yReach));
     return {
       x1: x0 - reach,
       y1: y0 - slope * reach,
@@ -153,9 +157,9 @@ const GraphVisual: React.FC<{ visual: Extract<StepVisual, { kind: 'graph' }> }> 
             {tangent && (
               <line
                 x1={toX(tangent.x1)}
-                y1={toY(clampY(tangent.y1))}
+                y1={toY(tangent.y1)}
                 x2={toX(tangent.x2)}
-                y2={toY(clampY(tangent.y2))}
+                y2={toY(tangent.y2)}
                 stroke="#fbbf24"
                 strokeWidth="2"
                 strokeDasharray="6 4"

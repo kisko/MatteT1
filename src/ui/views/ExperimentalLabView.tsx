@@ -244,7 +244,17 @@ export const ExperimentalLabView: React.FC<ExperimentalLabViewProps> = ({
               return (
                 <article
                   key={lab.id}
-                  className="flex flex-col rounded-2xl border border-slate-700/80 bg-slate-900/70 p-4 transition-colors hover:border-violet-400/50"
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`Start utforskning: ${lab.title}`}
+                  onClick={() => onStartExploration(lab.id)}
+                  onKeyDown={(event) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                      event.preventDefault();
+                      onStartExploration(lab.id);
+                    }
+                  }}
+                  className="flex cursor-pointer flex-col rounded-2xl border border-slate-700/80 bg-slate-900/70 p-4 transition-colors hover:border-violet-400/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400"
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0">
@@ -290,7 +300,10 @@ export const ExperimentalLabView: React.FC<ExperimentalLabViewProps> = ({
                   <div className="mt-auto pt-4">
                     <button
                       type="button"
-                      onClick={() => onStartExploration(lab.id)}
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        onStartExploration(lab.id);
+                      }}
                       className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-violet-400 px-4 py-2.5 text-sm font-black text-slate-950 transition-colors hover:bg-violet-300"
                     >
                       <Layers3 className="h-4 w-4" />
@@ -405,7 +418,17 @@ export const ExperimentalLabView: React.FC<ExperimentalLabViewProps> = ({
               return (
                 <article
                   key={template.id}
-                  className="flex flex-col rounded-2xl border border-slate-700/80 bg-slate-900/70 p-4 transition-colors hover:border-emerald-400/50"
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`Start øving: ${template.title}`}
+                  onClick={() => onStartPractice(template.id)}
+                  onKeyDown={(event) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                      event.preventDefault();
+                      onStartPractice(template.id);
+                    }
+                  }}
+                  className="flex cursor-pointer flex-col rounded-2xl border border-slate-700/80 bg-slate-900/70 p-4 transition-colors hover:border-emerald-400/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0">
@@ -451,7 +474,10 @@ export const ExperimentalLabView: React.FC<ExperimentalLabViewProps> = ({
                   <div className="mt-auto pt-4">
                     <button
                       type="button"
-                      onClick={() => onStartPractice(template.id)}
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        onStartPractice(template.id);
+                      }}
                       className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-400 px-4 py-2.5 text-sm font-black text-slate-950 transition-colors hover:bg-emerald-300"
                     >
                       <Dumbbell className="h-4 w-4" />

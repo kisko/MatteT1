@@ -194,14 +194,21 @@ export const QuizCard: React.FC<QuizCardProps> = ({
             />
           )}
           {isExamMode && (
-            <textarea
-              value={reasoning}
-              onChange={(event) => setReasoning(event.target.value)}
-              disabled={Boolean(evaluation)}
-              placeholder="Skriv kort hvordan du tenkte, hvilke regler du brukte og hvorfor svaret gir mening."
-              rows={4}
-              className="min-h-24 w-full rounded-xl border border-slate-700 bg-slate-800 px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-60"
-            />
+            <div className="w-full">
+              <label htmlFor="reasoning" className="mb-2 block text-xs font-semibold text-slate-400">
+                Begrunnelse <span className="font-normal text-slate-500">(valgfritt)</span>
+              </label>
+              <textarea
+                id="reasoning"
+                value={reasoning}
+                onChange={(event) => setReasoning(event.target.value)}
+                disabled={Boolean(evaluation)}
+                placeholder="Skriv én kort setning hvis du vil vise hvordan du tenkte."
+                rows={2}
+                className="min-h-16 w-full rounded-xl border border-slate-700 bg-slate-800 px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-60"
+              />
+              <p className="mt-1.5 text-xs text-slate-500">Du kan levere svaret uten å skrive en begrunnelse.</p>
+            </div>
           )}
           <button
             type="submit"

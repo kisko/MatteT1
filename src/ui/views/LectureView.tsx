@@ -337,8 +337,10 @@ const InteractiveGraph: React.FC<InteractiveGraphProps> = ({ mode, primary, seco
   }).join(' ');
   const selectedValue = valueAt(input);
   const tangentSlope = mode === 'derivative' ? 2 * secondary * input : primary;
-  const tangentStart = selectedValue - tangentSlope * (input + 2);
-  const tangentEnd = selectedValue + tangentSlope * (2 - input);
+  const tangentStartX = Math.max(xMin, input - 2);
+  const tangentEndX = Math.min(xMax, input + 2);
+  const tangentStart = selectedValue + tangentSlope * (tangentStartX - input);
+  const tangentEnd = selectedValue + tangentSlope * (tangentEndX - input);
 
   return (
     <div className="rounded-xl border border-sky-300/25 bg-slate-950/80 p-3 mb-5">
@@ -351,7 +353,7 @@ const InteractiveGraph: React.FC<InteractiveGraphProps> = ({ mode, primary, seco
         {axisYValues.map((tick) => <g key={`y-${tick}`}><line x1={toGraphX(0) - 4} y1={toGraphY(tick)} x2={toGraphX(0) + 4} y2={toGraphY(tick)} stroke="#64748b" /><text x={toGraphX(0) - 8} y={toGraphY(tick) + 3} textAnchor="end" fill="#94a3b8" fontSize="9">{tick}</text></g>)}
         <polyline points={graphPoints} fill="none" stroke="#67e8f9" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
         {mode === 'derivative' && (
-          <line x1={toGraphX(-2)} y1={toGraphY(tangentStart)} x2={toGraphX(2)} y2={toGraphY(tangentEnd)} stroke="#fbbf24" strokeWidth="2" strokeDasharray="6 4" />
+          <line x1={toGraphX(tangentStartX)} y1={toGraphY(tangentStart)} x2={toGraphX(tangentEndX)} y2={toGraphY(tangentEnd)} stroke="#fbbf24" strokeWidth="2" strokeDasharray="6 4" />
         )}
         <circle cx={toGraphX(input)} cy={toGraphY(selectedValue)} r="6" fill="#a78bfa" stroke="#f5f3ff" strokeWidth="2" />
         <text x={graphWidth - padding - 2} y={toGraphY(0) - 9} textAnchor="end" fill="#94a3b8" fontSize="11">x</text>
@@ -670,7 +672,7 @@ const InteractiveModule: React.FC<InteractiveModuleProps> = ({ topic }) => {
         <div className="rounded-xl border border-violet-300/30 bg-slate-950/70 p-5 text-center">
           <p className="text-xs uppercase tracking-widest text-slate-400 mb-3">Hva skjer?</p>
           <InteractiveVisual topic={topic} primary={primary} secondary={secondary} tertiary={tertiary} fourth={fourth} functionType={functionType} fineGrid={fineGrid} />
-          <div className="text-lg sm:text-2xl font-bold text-violet-100 break-words"><MathView latex={configuration.formula} displayMode={true} /></div>
+          <div className="text-lg sm:text-2xl font-bold text-violet-100 break-words"><MathView latex={`$${configuration.formula}$`} displayMode={true} /></div>
           <p className="text-xs text-slate-400 mt-4">{configuration.insight}</p>
         </div>
       </div>
