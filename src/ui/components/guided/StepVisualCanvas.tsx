@@ -433,11 +433,17 @@ const AreaModelVisual: React.FC<{ visual: Extract<StepVisual, { kind: 'areaModel
 
 const TriangleVisual: React.FC<{ visual: Extract<StepVisual, { kind: 'triangle' }> }> = ({ visual }) => {
   const radians = (visual.angleDegrees * Math.PI) / 180;
-  const hypotenuseLength = 300;
-  const base = hypotenuseLength * Math.cos(radians);
-  const height = hypotenuseLength * Math.sin(radians);
   const originX = 96;
   const originY = HEIGHT - 52;
+  const maximumHeight = originY - 30;
+  const maximumBase = WIDTH - originX - 62;
+  const hypotenuseLength = Math.min(
+    300,
+    maximumHeight / Math.sin(radians),
+    maximumBase / Math.cos(radians)
+  );
+  const base = hypotenuseLength * Math.cos(radians);
+  const height = hypotenuseLength * Math.sin(radians);
   const cornerX = originX + base;
   const topY = originY - height;
 

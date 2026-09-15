@@ -14,6 +14,10 @@ export function looksLikeLatexMath(input: string): boolean {
   const str = input.trim();
   if (!str) return false;
 
+  // Fritekst med et matematisk uttrykk må ha eksplisitte $-skillemerker.
+  // Ellers vil KaTeX svelge mellomrommene i hele setningen.
+  if (/\s/.test(str)) return false;
+
   // Inneholder typiske LaTeX-kommandoer
   if (/\\(frac|sqrt|cdot|approx|le|ge|pm|infty|sin|cos|tan|lg|ln|binom|Delta|prime|Rightarrow|rightarrow|to|in|cap|cup|quad|text)/.test(str)) {
     return true;
@@ -121,16 +125,17 @@ export const MathView: React.FC<MathViewProps> = ({
   const tokens = useMemo(() => {
     if (!latex) return [];
 
-    // Hvis komponenten eksplisitt er satt med displayMode={true} (f.eks. i formelblokker):
-    // Skrell ytre dollartegn dersom det finnes, for å unngå syntax-error fra dobbeltinnpakking.
+    const parsedTokens = parseLatex(latex);
+
+    // Blokkmodus kan bare tvinges når hele verdien er én formel. En blandet
+    // streng som "$h = 6$ meter" må beholde tekst- og matematikkdelene sine.
     if (displayMode) {
-      const clean = latex.trim().replace(/^\$+|\$+$/g, '').trim();
-      if (clean) {
-        return [{ type: 'block' as const, content: clean }];
+      if (parsedTokens.length === 1 && parsedTokens[0].type === 'inline') {
+        return [{ type: 'block' as const, content: parsedTokens[0].content }];
       }
     }
 
-    return parseLatex(latex);
+    return parsedTokens;
   }, [latex, displayMode]);
 
   const renderToken = (token: MathToken, index: number) => {

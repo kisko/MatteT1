@@ -30,4 +30,10 @@ describe('MathView parseLatex', () => {
     expect(tokens[0].type).toBe('inline');
     expect(tokens[0].content).toBe('5\\sqrt{2}');
   });
+
+  it('beholder fritekst med et umarkert matematisk uttrykk som tekst', () => {
+    const input = 'Taxi B er billigst når turen er lengre enn 5 km';
+
+    expect(parseLatex(input)).toEqual([{ type: 'text', content: input }]);
+  });
 });
