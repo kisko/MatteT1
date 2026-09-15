@@ -18,8 +18,11 @@ import { QuizCompletedDomainEvent } from './domain/events/QuizCompletedDomainEve
 import { GuidedLessonCompletedDomainEvent } from './domain/events/GuidedLessonCompletedDomainEvent.js';
 import { GuidedSession } from './domain/model/guided/GuidedSession.js';
 import type { PracticeRun } from './domain/model/guided/PracticeRun.js';
+import type { ExplorationSession } from './domain/model/exploration/ExplorationSession.js';
 import { StartGuidedLessonUseCase } from './application/use-cases/StartGuidedLessonUseCase.js';
 import { RecordGuidedProgressUseCase } from './application/use-cases/RecordGuidedProgressUseCase.js';
+import { LocalStorageExplorationRepository } from './infrastructure/persistence/LocalStorageExplorationRepository.js';
+import { ExplorationMissionCompletedDomainEvent } from './domain/events/ExplorationEvents.js';
 import type { LabStation } from './ui/views/ExperimentalLabView.js';
 import { ToastContainer, ToastMessage } from './ui/components/Toast.js';
 import { APP_VERSION } from './version.js';
@@ -34,6 +37,7 @@ const startQuizUseCase = new StartQuizUseCase(taskRepo);
 const submitAnswerUseCase = new SubmitAnswerUseCase(progressRepo);
 const startGuidedLessonUseCase = new StartGuidedLessonUseCase();
 const recordGuidedProgressUseCase = new RecordGuidedProgressUseCase(progressRepo);
+const explorationRepo = new LocalStorageExplorationRepository();
 
 export const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<'dashboard' | 'matrix' | 'lecture' | 'lab' | 'quiz'>('dashboard');
@@ -45,6 +49,9 @@ export const App: React.FC = () => {
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
   const [guidedSession, setGuidedSession] = useState<GuidedSession | null>(null);
   const [practiceRun, setPracticeRun] = useState<PracticeRun | null>(null);
+  const [explorationSession, setExplorationSession] = useState<ExplorationSession | null>(null);
+  const [completedMissionKeys, setCompletedMissionKeys] = useState<readonly string[]>([]);
+  const [isAnimating, setIsAnimating] = useState(false);
   const [labStation, setLabStation] = useState<LabStation>('guided');
 
   const addToast = useCallback((toast: Omit<ToastMessage, 'id'>) => {
@@ -106,10 +113,25 @@ export const App: React.FC = () => {
       }
     );
 
+    const unsubMission = publisher.subscribe<ExplorationMissionCompletedDomainEvent>(
+      'ExplorationMissionCompletedDomainEvent',
+      (event) => {
+        addToast({
+          type: event.completedCount === event.totalCount ? 'success' : 'info',
+          title:
+            event.completedCount === event.totalCount
+              ? 'Alle oppdrag løst! 🔬'
+              : `Oppdrag løst (${event.completedCount}/${event.totalCount}) 🔍`,
+          description: event.missionPrompt,
+        });
+      }
+    );
+
     return () => {
       unsubProgress();
       unsubQuiz();
       unsubGuided();
+      unsubMission();
     };
   }, [addToast]);
 
@@ -117,6 +139,7 @@ export const App: React.FC = () => {
   useEffect(() => {
     progressRepo.getProgress().then(setProgress);
     taskRepo.getAll().then(setTaskCatalog);
+    explorationRepo.getCompletedMissionKeys().then(setCompletedMissionKeys);
 
     const savedTheme = localStorage.getItem('mattet1_theme');
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -270,6 +293,46 @@ export const App: React.FC = () => {
     setPracticeRun(null);
   };
 
+  /**
+   * Utforskningene og oppgavemalene lastes først når de skal brukes.
+   */
+  const handleStartExploration = async (labId: string) => {
+    const { StartExplorationUseCase } = await import('./application/use-cases/ExplorationUseCases.js');
+    const result = await new StartExplorationUseCase(explorationRepo).execute(labId);
+
+    if (result.isSuccess) {
+      setIsAnimating(false);
+      setExplorationSession(result.value);
+    } else {
+      addToast({
+        type: 'info',
+        title: 'Kunne ikke åpne utforskningen',
+        description: result.error.message,
+      });
+    }
+  };
+
+  /**
+   * Hver endring av en glidebryter kan løse et oppdrag. Da lagres det, slik at
+   * oppdagelsen står igjen neste gang eleven er innom.
+   */
+  const handleExplorationChange = async (nextSession: ExplorationSession) => {
+    setExplorationSession(nextSession);
+
+    const { RecordExplorationProgressUseCase } = await import(
+      './application/use-cases/ExplorationUseCases.js'
+    );
+    const outcome = await new RecordExplorationProgressUseCase(explorationRepo).execute(nextSession);
+    if (outcome.isSuccess) {
+      setCompletedMissionKeys(outcome.value.completedKeys);
+    }
+  };
+
+  const handleExitExploration = () => {
+    setIsAnimating(false);
+    setExplorationSession(null);
+  };
+
   const handleRestartQuiz = async () => {
     if (activeSession) {
       if (activeSession.mode === 'exam') {
@@ -324,6 +387,13 @@ export const App: React.FC = () => {
         onPracticeRunChange={setPracticeRun}
         onPracticeSessionProgress={handlePracticeSessionProgress}
         onExitPractice={handleExitPractice}
+        explorationSession={explorationSession}
+        completedMissionKeys={completedMissionKeys}
+        onStartExploration={handleStartExploration}
+        onExplorationChange={handleExplorationChange}
+        onExitExploration={handleExitExploration}
+        isAnimating={isAnimating}
+        onToggleAnimation={() => setIsAnimating((playing) => !playing)}
         onStartQuiz={handleStartTopic}
         onBack={handleGoHome}
       />
